@@ -17,71 +17,30 @@ SE4040 Enterprise Application Development Assignment 1: Smart Solar Microgrid Tr
 ## Backend Setup
 
 1. Install .NET 8 SDK.
-2. Configure MongoDB.
-3. Run:
+2. Create the backend `.env` file:
 
 ```bash
 cd backend-api
+cp .env.example .env
+```
+
+3. Add your MongoDB Atlas connection string to `.env`:
+
+```bash
+MONGODB_URI="mongodb+srv://YOUR_USERNAME:YOUR_PASSWORD@cluster0.3gnr2ni.mongodb.net/?retryWrites=true&w=majority"
+MONGODB_DATABASE="smart_solar_microgrid_trading_system"
+```
+
+4. Run the API:
+
+```bash
 dotnet restore
 dotnet run
 ```
 
 API URL: `http://localhost:5088/api`
 
-### MongoDB Configuration
-
-The committed [backend-api/appsettings.json](backend-api/appsettings.json) is safe to push because it only contains the local default connection string. Do not put your MongoDB Atlas username or password in this committed file.
-
-If a MongoDB password is ever pasted into chat, committed to Git, or shared publicly, rotate it immediately in MongoDB Atlas under **Database Access** before using it again.
-
-For local development, create this ignored file:
-
-```bash
-cp backend-api/appsettings.Development.json.example backend-api/appsettings.Development.json
-```
-
-Then edit `backend-api/appsettings.Development.json` and place your real Atlas connection string there.
-
-You can also use an environment variable instead:
-
-```bash
-export MongoDb__ConnectionString='mongodb+srv://USERNAME:PASSWORD@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority'
-dotnet run
-```
-
-ASP.NET Core maps `MongoDb__ConnectionString` to `MongoDb:ConnectionString`.
-
-### MongoDB Atlas With Environment Variables
-
-For the Atlas credentials, the backend does not need separate `MONGODB_USERNAME`, `MONGODB_PASSWORD`, and `MONGODB_URI` variables. It expects the ASP.NET Core configuration keys below:
-
-```bash
-export MongoDb__ConnectionString='mongodb+srv://YOUR_ATLAS_USERNAME:YOUR_ATLAS_PASSWORD@cluster0.3gnr2ni.mongodb.net/?retryWrites=true&w=majority'
-export MongoDb__DatabaseName='smart_solar_microgrid_trading_system'
-```
-
-Then run the API in the same terminal:
-
-```bash
-cd backend-api
-dotnet run
-```
-
-Example username format:
-
-```text
-YOUR_ATLAS_USERNAME=it22297372_db_user
-```
-
-Do not add backslashes before `_` or `@` in the connection string. If the password contains special characters such as `@`, `#`, `/`, `:`, or `%`, URL-encode the password before placing it in the URI.
-
-For Windows PowerShell:
-
-```powershell
-$env:MongoDb__ConnectionString="mongodb+srv://YOUR_ATLAS_USERNAME:YOUR_ATLAS_PASSWORD@cluster0.3gnr2ni.mongodb.net/?retryWrites=true&w=majority"
-$env:MongoDb__DatabaseName="smart_solar_microgrid_trading_system"
-dotnet run
-```
+Do not commit `.env`. It is ignored by Git.
 
 ## Web Client Setup
 
