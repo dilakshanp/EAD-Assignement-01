@@ -32,6 +32,8 @@ API URL: `http://localhost:5088/api`
 
 The committed [backend-api/appsettings.json](backend-api/appsettings.json) is safe to push because it only contains the local default connection string. Do not put your MongoDB Atlas username or password in this committed file.
 
+If a MongoDB password is ever pasted into chat, committed to Git, or shared publicly, rotate it immediately in MongoDB Atlas under **Database Access** before using it again.
+
 For local development, create this ignored file:
 
 ```bash
@@ -48,6 +50,38 @@ dotnet run
 ```
 
 ASP.NET Core maps `MongoDb__ConnectionString` to `MongoDb:ConnectionString`.
+
+### MongoDB Atlas With Environment Variables
+
+For the Atlas credentials, the backend does not need separate `MONGODB_USERNAME`, `MONGODB_PASSWORD`, and `MONGODB_URI` variables. It expects the ASP.NET Core configuration keys below:
+
+```bash
+export MongoDb__ConnectionString='mongodb+srv://YOUR_ATLAS_USERNAME:YOUR_ATLAS_PASSWORD@cluster0.3gnr2ni.mongodb.net/?retryWrites=true&w=majority'
+export MongoDb__DatabaseName='smart_solar_microgrid_trading_system'
+```
+
+Then run the API in the same terminal:
+
+```bash
+cd backend-api
+dotnet run
+```
+
+Example username format:
+
+```text
+YOUR_ATLAS_USERNAME=it22297372_db_user
+```
+
+Do not add backslashes before `_` or `@` in the connection string. If the password contains special characters such as `@`, `#`, `/`, `:`, or `%`, URL-encode the password before placing it in the URI.
+
+For Windows PowerShell:
+
+```powershell
+$env:MongoDb__ConnectionString="mongodb+srv://YOUR_ATLAS_USERNAME:YOUR_ATLAS_PASSWORD@cluster0.3gnr2ni.mongodb.net/?retryWrites=true&w=majority"
+$env:MongoDb__DatabaseName="smart_solar_microgrid_trading_system"
+dotnet run
+```
 
 ## Web Client Setup
 
