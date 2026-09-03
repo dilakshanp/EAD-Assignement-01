@@ -1,6 +1,6 @@
-# Smart Solar Microgrid Trading System
+# smart_solar_microgrid_trading_system
 
-SE4040 Enterprise Application Development Assignment 1.
+SE4040 Enterprise Application Development Assignment 1: Smart Solar Microgrid Trading System.
 
 ## Project Structure
 
@@ -49,5 +49,7 @@ This project was generated with AI assistance under the updated Level 4 AI polic
 Add your YouTube or OneDrive demo video link here.
 
 ## Git Repository
+
+Use this repository name on GitHub: `smart_solar_microgrid_trading_system`.
 
 Add your GitHub repository link here and include each member contribution.
