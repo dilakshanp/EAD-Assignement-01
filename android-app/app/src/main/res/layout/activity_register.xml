@@ -1,0 +1,13 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent">
+    <LinearLayout android:orientation="vertical" android:padding="20dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <TextView android:text="Prosumer Account" android:textSize="24sp" android:textStyle="bold" android:layout_width="match_parent" android:layout_height="wrap_content" />
+        <EditText android:id="@+id/nic" android:hint="NIC" android:layout_width="match_parent" android:layout_height="wrap_content" />
+        <EditText android:id="@+id/fullName" android:hint="Full name" android:layout_width="match_parent" android:layout_height="wrap_content" />
+        <EditText android:id="@+id/phone" android:hint="Phone" android:layout_width="match_parent" android:layout_height="wrap_content" />
+        <EditText android:id="@+id/email" android:hint="Email" android:layout_width="match_parent" android:layout_height="wrap_content" />
+        <EditText android:id="@+id/address" android:hint="Address" android:layout_width="match_parent" android:layout_height="wrap_content" />
+        <EditText android:id="@+id/capacity" android:hint="Solar capacity kW" android:inputType="numberDecimal" android:layout_width="match_parent" android:layout_height="wrap_content" />
+        <Button android:id="@+id/saveButton" android:text="Save Profile" android:layout_width="match_parent" android:layout_height="wrap_content" />
+        <Button android:id="@+id/deactivateButton" android:text="Request Deactivation" android:layout_width="match_parent" android:layout_height="wrap_content" />
+    </LinearLayout>
+</ScrollView>

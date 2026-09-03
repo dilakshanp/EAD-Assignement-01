@@ -1,0 +1,8 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical" android:padding="24dp" android:gravity="center" android:layout_width="match_parent" android:layout_height="match_parent">
+    <TextView android:text="Smart Solar Microgrid" android:textSize="26sp" android:textStyle="bold" android:layout_width="match_parent" android:layout_height="wrap_content" />
+    <EditText android:id="@+id/username" android:hint="Username or NIC" android:layout_width="match_parent" android:layout_height="wrap_content" />
+    <EditText android:id="@+id/password" android:hint="Password" android:inputType="textPassword" android:layout_width="match_parent" android:layout_height="wrap_content" />
+    <Button android:id="@+id/loginButton" android:text="Login" android:layout_width="match_parent" android:layout_height="wrap_content" />
+    <Button android:id="@+id/registerButton" android:text="Create Prosumer Account" android:layout_width="match_parent" android:layout_height="wrap_content" />
+    <Button android:id="@+id/operatorButton" android:text="Operator QR Mode" android:layout_width="match_parent" android:layout_height="wrap_content" />
+</LinearLayout>

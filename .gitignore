@@ -1,0 +1,13 @@
+bin/
+obj/
+.vs/
+.idea/
+.gradle/
+build/
+web-client/node_modules/
+web-client/dist/
+*.apk
+*.aab
+*.zip
+local.properties
+appsettings.Development.json

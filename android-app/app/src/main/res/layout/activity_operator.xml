@@ -1,0 +1,6 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical" android:padding="20dp" android:layout_width="match_parent" android:layout_height="match_parent">
+    <TextView android:text="Grid Operator Verification" android:textSize="24sp" android:textStyle="bold" android:layout_width="match_parent" android:layout_height="wrap_content" />
+    <EditText android:id="@+id/qrCode" android:hint="Scanned QR transaction code" android:layout_width="match_parent" android:layout_height="wrap_content" />
+    <Button android:id="@+id/finalizeButton" android:text="Verify and Finalize Transfer" android:layout_width="match_parent" android:layout_height="wrap_content" />
+    <TextView android:id="@+id/result" android:layout_width="match_parent" android:layout_height="wrap_content" />
+</LinearLayout>

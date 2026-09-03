@@ -1,0 +1,12 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent">
+    <LinearLayout android:orientation="vertical" android:padding="20dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <TextView android:id="@+id/title" android:text="Prosumer Dashboard" android:textSize="24sp" android:textStyle="bold" android:layout_width="match_parent" android:layout_height="wrap_content" />
+        <TextView android:id="@+id/summary" android:text="Loading bookings..." android:layout_width="match_parent" android:layout_height="wrap_content" />
+        <EditText android:id="@+id/nodeId" android:hint="Node ID" android:layout_width="match_parent" android:layout_height="wrap_content" />
+        <EditText android:id="@+id/energy" android:hint="Energy kWh" android:inputType="numberDecimal" android:layout_width="match_parent" android:layout_height="wrap_content" />
+        <Button android:id="@+id/bookButton" android:text="Create Booking Request" android:layout_width="match_parent" android:layout_height="wrap_content" />
+        <Button android:id="@+id/historyButton" android:text="Refresh Booking History" android:layout_width="match_parent" android:layout_height="wrap_content" />
+        <TextView android:id="@+id/history" android:layout_width="match_parent" android:layout_height="wrap_content" />
+        <TextView android:text="Nearby grid nodes are loaded from the API. Add Google Maps SDK key in AndroidManifest metadata for production map rendering." android:layout_width="match_parent" android:layout_height="wrap_content" />
+    </LinearLayout>
+</ScrollView>

@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Smart Solar Microgrid</string>
+    <string name="api_base">http://10.0.2.2:5088/api</string>
+</resources>
