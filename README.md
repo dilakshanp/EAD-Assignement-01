@@ -17,7 +17,7 @@ SE4040 Enterprise Application Development Assignment 1: Smart Solar Microgrid Tr
 ## Backend Setup
 
 1. Install .NET 8 SDK.
-2. Start MongoDB locally on `mongodb://localhost:27017`.
+2. Configure MongoDB.
 3. Run:
 
 ```bash
@@ -27,6 +27,27 @@ dotnet run
 ```
 
 API URL: `http://localhost:5088/api`
+
+### MongoDB Configuration
+
+The committed [backend-api/appsettings.json](backend-api/appsettings.json) is safe to push because it only contains the local default connection string. Do not put your MongoDB Atlas username or password in this committed file.
+
+For local development, create this ignored file:
+
+```bash
+cp backend-api/appsettings.Development.json.example backend-api/appsettings.Development.json
+```
+
+Then edit `backend-api/appsettings.Development.json` and place your real Atlas connection string there.
+
+You can also use an environment variable instead:
+
+```bash
+export MongoDb__ConnectionString='mongodb+srv://USERNAME:PASSWORD@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority'
+dotnet run
+```
+
+ASP.NET Core maps `MongoDb__ConnectionString` to `MongoDb:ConnectionString`.
 
 ## Web Client Setup
 
