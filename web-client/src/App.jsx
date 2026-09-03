@@ -10,7 +10,12 @@ async function request(path, options = {}) {
     headers: { "Content-Type": "application/json", ...(options.headers || {}) },
     ...options,
   });
+  if (!res.ok) throw new Error(`API request failed: ${res.status}`);
   return res.json();
+}
+
+function asArray(value) {
+  return Array.isArray(value) ? value : [];
 }
 
 const emptyNode = { name: "", locationName: "", latitude: 6.9271, longitude: 79.8612, capacityKwh: 100, batteryStorageSlots: 4, isActive: true, schedules: [] };
@@ -76,7 +81,10 @@ function Shell({ user, onLogout }) {
 function Dashboard() {
   const [reservations, setReservations] = useState([]);
   const [nodes, setNodes] = useState([]);
-  useEffect(() => { request("/reservations").then(setReservations); request("/nodes").then(setNodes); }, []);
+  useEffect(() => {
+    request("/reservations").then((data) => setReservations(asArray(data))).catch(() => setReservations([]));
+    request("/nodes").then((data) => setNodes(asArray(data))).catch(() => setNodes([]));
+  }, []);
   const approved = reservations.filter((x) => x.status === "Approved" || x.status === 1).length;
   const pending = reservations.filter((x) => x.status === "Pending" || x.status === 0).length;
   return <section className="grid">
@@ -94,15 +102,18 @@ function Metric({ icon, label, value }) {
 function UsersPanel() {
   const [users, setUsers] = useState([]);
   const [form, setForm] = useState({ username: "", password: "", role: "Backoffice", prosumerNic: "" });
-  const load = () => request("/auth/users").then(setUsers);
-  useEffect(load, []);
+  const [message, setMessage] = useState("");
+  const load = () => request("/auth/users").then((data) => setUsers(asArray(data))).catch((err) => setMessage(err.message));
+  useEffect(() => {
+    load();
+  }, []);
   async function create(e) {
     e.preventDefault();
     await request("/auth/users", { method: "POST", body: JSON.stringify(form) });
     setForm({ username: "", password: "", role: "Backoffice", prosumerNic: "" });
     load();
   }
-  return <section className="panel"><h2>User Management</h2><Form onSubmit={create}>
+  return <section className="panel"><h2>User Management</h2>{message && <p className="error">{message}</p>}<Form onSubmit={create}>
     <input placeholder="Username" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} />
     <input placeholder="Password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
     <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}><option>Backoffice</option><option>GridOperator</option></select>
@@ -113,8 +124,11 @@ function UsersPanel() {
 function Prosumers() {
   const [rows, setRows] = useState([]);
   const [form, setForm] = useState(emptyProsumer);
-  const load = () => request("/prosumers").then(setRows);
-  useEffect(load, []);
+  const [message, setMessage] = useState("");
+  const load = () => request("/prosumers").then((data) => setRows(asArray(data))).catch((err) => setMessage(err.message));
+  useEffect(() => {
+    load();
+  }, []);
   async function save(e) {
     e.preventDefault();
     await request(`/prosumers/${form.nic}`, { method: "PUT", body: JSON.stringify(form) });
@@ -125,7 +139,7 @@ function Prosumers() {
     await request(`/prosumers/${nic}/${action}`, { method: "POST" });
     load();
   }
-  return <section className="panel"><h2>Prosumer Management</h2><Form onSubmit={save}>
+  return <section className="panel"><h2>Prosumer Management</h2>{message && <p className="error">{message}</p>}<Form onSubmit={save}>
     {["nic", "fullName", "phone", "email", "address"].map((k) => <input key={k} placeholder={k} value={form[k]} onChange={(e) => setForm({ ...form, [k]: e.target.value })} />)}
     <input type="number" placeholder="Solar kW" value={form.solarCapacityKw} onChange={(e) => setForm({ ...form, solarCapacityKw: Number(e.target.value) })} />
     <button>Save</button>
@@ -135,15 +149,24 @@ function Prosumers() {
 function Nodes() {
   const [rows, setRows] = useState([]);
   const [form, setForm] = useState(emptyNode);
-  const load = () => request("/nodes").then(setRows);
-  useEffect(load, []);
+  const [message, setMessage] = useState("");
+  const load = () => request("/nodes").then((data) => {
+    setRows(asArray(data));
+    setMessage("");
+  }).catch((err) => {
+    setRows([]);
+    setMessage(err.message);
+  });
+  useEffect(() => {
+    load();
+  }, []);
   async function save(e) {
     e.preventDefault();
     await request(form.id ? `/nodes/${form.id}` : "/nodes", { method: form.id ? "PUT" : "POST", body: JSON.stringify(form) });
     setForm(emptyNode);
     load();
   }
-  return <section className="panel"><h2>Microgrid Nodes</h2><Form onSubmit={save}>
+  return <section className="panel"><h2>Microgrid Nodes</h2>{message && <p className="error">{message}</p>}<Form onSubmit={save}>
     {["name", "locationName"].map((k) => <input key={k} placeholder={k} value={form[k]} onChange={(e) => setForm({ ...form, [k]: e.target.value })} />)}
     {["latitude", "longitude", "capacityKwh", "batteryStorageSlots"].map((k) => <input key={k} type="number" placeholder={k} value={form[k]} onChange={(e) => setForm({ ...form, [k]: Number(e.target.value) })} />)}
     <button>Save</button>
@@ -155,15 +178,24 @@ function Reservations() {
   const [query, setQuery] = useState("");
   const [qr, setQr] = useState("");
   const [form, setForm] = useState({ prosumerNic: "", nodeId: "", slotStartUtc: "", slotEndUtc: "", energyKwh: 5, status: "Approved" });
-  const load = () => request("/reservations").then(setRows);
-  useEffect(load, []);
+  const [message, setMessage] = useState("");
+  const load = () => request("/reservations").then((data) => {
+    setRows(asArray(data));
+    setMessage("");
+  }).catch((err) => {
+    setRows([]);
+    setMessage(err.message);
+  });
+  useEffect(() => {
+    load();
+  }, []);
   async function save(e) {
     e.preventDefault();
     await request(form.id ? `/reservations/${form.id}` : "/reservations", { method: form.id ? "PUT" : "POST", body: JSON.stringify(form) });
     load();
   }
   const filtered = useMemo(() => rows.filter((r) => JSON.stringify(r).toLowerCase().includes(query.toLowerCase())), [rows, query]);
-  return <section className="panel"><h2>Reservations</h2><div className="search"><Search size={18} /><input placeholder="Search bookings" value={query} onChange={(e) => setQuery(e.target.value)} /></div>
+  return <section className="panel"><h2>Reservations</h2>{message && <p className="error">{message}</p>}<div className="search"><Search size={18} /><input placeholder="Search bookings" value={query} onChange={(e) => setQuery(e.target.value)} /></div>
     <Form onSubmit={save}>
       {["prosumerNic", "nodeId"].map((k) => <input key={k} placeholder={k} value={form[k]} onChange={(e) => setForm({ ...form, [k]: e.target.value })} />)}
       <input type="datetime-local" onChange={(e) => setForm({ ...form, slotStartUtc: new Date(e.target.value).toISOString() })} />

@@ -14,7 +14,7 @@ public class ProsumerService
     public ProsumerService(MongoContext db) => _db = db;
 
     public Task<List<Prosumer>> GetAllAsync() => _db.Prosumers.Find(_ => true).ToListAsync();
-    public Task<Prosumer?> GetAsync(string nic) => _db.Prosumers.Find(x => x.Nic == nic).FirstOrDefaultAsync();
+    public async Task<Prosumer?> GetAsync(string nic) => await _db.Prosumers.Find(x => x.Nic == nic).FirstOrDefaultAsync();
     public Task UpsertAsync(Prosumer prosumer) => _db.Prosumers.ReplaceOneAsync(x => x.Nic == prosumer.Nic, prosumer, new ReplaceOptions { IsUpsert = true });
     public Task SetStatusAsync(string nic, AccountStatus status) =>
         _db.Prosumers.UpdateOneAsync(x => x.Nic == nic, Builders<Prosumer>.Update.Set(x => x.Status, status));

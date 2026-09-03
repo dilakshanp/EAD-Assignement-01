@@ -15,7 +15,7 @@ public class ReservationService
 
     public Task<List<EnergyReservation>> GetAllAsync() => _db.Reservations.Find(_ => true).ToListAsync();
     public Task<List<EnergyReservation>> GetByProsumerAsync(string nic) => _db.Reservations.Find(x => x.ProsumerNic == nic).ToListAsync();
-    public Task<EnergyReservation?> GetAsync(string id) => _db.Reservations.Find(x => x.Id == id).FirstOrDefaultAsync();
+    public async Task<EnergyReservation?> GetAsync(string id) => await _db.Reservations.Find(x => x.Id == id).FirstOrDefaultAsync();
 
     public async Task<ApiResult<EnergyReservation>> CreateAsync(EnergyReservation reservation)
     {

@@ -7,6 +7,8 @@ using SmartSolar.Api.Services;
 using SmartSolar.Api.Settings;
 using System.Text.Json.Serialization;
 
+EnvLoader.Load();
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDb"));

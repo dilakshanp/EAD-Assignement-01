@@ -14,7 +14,7 @@ public class NodeService
     public NodeService(MongoContext db) => _db = db;
 
     public Task<List<MicrogridNode>> GetAllAsync() => _db.Nodes.Find(_ => true).ToListAsync();
-    public Task<MicrogridNode?> GetAsync(string id) => _db.Nodes.Find(x => x.Id == id).FirstOrDefaultAsync();
+    public async Task<MicrogridNode?> GetAsync(string id) => await _db.Nodes.Find(x => x.Id == id).FirstOrDefaultAsync();
     public Task CreateAsync(MicrogridNode node) => _db.Nodes.InsertOneAsync(node);
     public Task UpdateAsync(string id, MicrogridNode node) => _db.Nodes.ReplaceOneAsync(x => x.Id == id, node);
 
