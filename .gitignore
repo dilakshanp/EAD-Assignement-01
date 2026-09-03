@@ -11,3 +11,4 @@ web-client/dist/
 *.zip
 local.properties
 appsettings.Development.json
+*.env
