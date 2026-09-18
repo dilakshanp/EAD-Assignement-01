@@ -35,11 +35,14 @@ public class ReservationService
     {
         var existing = await GetAsync(id);
         if (existing is null) return new(false, "Reservation not found.", null);
-        var validation = ValidateReservationWindow(existing.SlotStartUtc, true);
-        if (!validation.Success) return new(false, validation.Message, null);
+        var noticeValidation = ValidateReservationWindow(existing.SlotStartUtc, true);
+        if (!noticeValidation.Success) return new(false, noticeValidation.Message, null);
+        var newSlotValidation = ValidateReservationWindow(update.SlotStartUtc, false);
+        if (!newSlotValidation.Success) return new(false, newSlotValidation.Message, null);
 
         update.Id = id;
         update.TransactionCode = existing.TransactionCode;
+        update.CreatedAtUtc = existing.CreatedAtUtc;
         update.UpdatedAtUtc = DateTime.UtcNow;
         await _db.Reservations.ReplaceOneAsync(x => x.Id == id, update);
         return new(true, "Reservation updated.", update);
@@ -69,6 +72,7 @@ public class ReservationService
     private static ApiResult<bool> ValidateReservationWindow(DateTime slotStartUtc, bool requireNotice)
     {
         var now = DateTime.UtcNow;
+        if (slotStartUtc == default) return new(false, "Please select a valid reservation start date.", false);
         if (slotStartUtc > now.AddDays(7)) return new(false, "Reservations must be scheduled within 7 days.", false);
         if (slotStartUtc <= now) return new(false, "Reservation slot must be in the future.", false);
         if (requireNotice && slotStartUtc < now.AddHours(12)) return new(false, "Updates and cancellations require at least 12 hours notice.", false);

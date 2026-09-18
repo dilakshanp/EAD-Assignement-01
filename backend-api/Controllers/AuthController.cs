@@ -30,6 +30,9 @@ public class AuthController : ControllerBase
     [HttpPost("users")]
     public async Task<ActionResult<ApiResult<AppUser>>> CreateUser(CreateUserRequest request)
     {
+        if (!AccessControl.HasRole(Request, UserRole.Backoffice))
+            return StatusCode(StatusCodes.Status403Forbidden, new ApiResult<AppUser>(false, "Only Backoffice users can create web users.", null));
+
         var user = new AppUser
         {
             Username = request.Username,
@@ -42,7 +45,12 @@ public class AuthController : ControllerBase
     }
 
     [HttpGet("users")]
-    public async Task<List<AppUser>> Users() => await _users.GetAllAsync();
+    public async Task<ActionResult<List<AppUser>>> Users()
+    {
+        if (!AccessControl.HasRole(Request, UserRole.Backoffice))
+            return StatusCode(StatusCodes.Status403Forbidden, new ApiResult<bool>(false, "Only Backoffice users can view web users.", false));
+        return await _users.GetAllAsync();
+    }
 }
 
 public record LoginRequest(string Username, string Password);

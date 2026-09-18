@@ -1,8 +1,53 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical" android:padding="24dp" android:gravity="center" android:layout_width="match_parent" android:layout_height="match_parent">
-    <TextView android:text="Smart Solar Microgrid" android:textSize="26sp" android:textStyle="bold" android:layout_width="match_parent" android:layout_height="wrap_content" />
-    <EditText android:id="@+id/username" android:hint="Username or NIC" android:layout_width="match_parent" android:layout_height="wrap_content" />
-    <EditText android:id="@+id/password" android:hint="Password" android:inputType="textPassword" android:layout_width="match_parent" android:layout_height="wrap_content" />
-    <Button android:id="@+id/loginButton" android:text="Login" android:layout_width="match_parent" android:layout_height="wrap_content" />
-    <Button android:id="@+id/registerButton" android:text="Create Prosumer Account" android:layout_width="match_parent" android:layout_height="wrap_content" />
-    <Button android:id="@+id/operatorButton" android:text="Operator QR Mode" android:layout_width="match_parent" android:layout_height="wrap_content" />
-</LinearLayout>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Screen"
+    android:fillViewport="true">
+
+    <LinearLayout
+        style="@style/Content"
+        android:gravity="center_vertical">
+
+        <TextView
+            style="@style/PageTitle"
+            android:text="Smart Solar\nMicrogrid" />
+
+        <TextView
+            style="@style/PageSubtitle"
+            android:text="Prosumer access and operator verification for solar energy trading." />
+
+        <LinearLayout style="@style/Panel">
+            <TextView
+                style="@style/BodyText"
+                android:text="Sign in"
+                android:textColor="#0F172A"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/username"
+                style="@style/Input"
+                android:hint="Username or NIC"
+                android:inputType="text" />
+
+            <EditText
+                android:id="@+id/password"
+                style="@style/Input"
+                android:hint="Password"
+                android:inputType="textPassword" />
+
+            <Button
+                android:id="@+id/loginButton"
+                style="@style/PrimaryButton"
+                android:text="Login" />
+
+            <Button
+                android:id="@+id/registerButton"
+                style="@style/SecondaryButton"
+                android:text="Create Prosumer Account" />
+
+            <Button
+                android:id="@+id/operatorButton"
+                style="@style/SecondaryButton"
+                android:text="Operator QR Mode" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

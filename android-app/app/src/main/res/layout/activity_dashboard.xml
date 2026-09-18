@@ -1,12 +1,65 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent">
-    <LinearLayout android:orientation="vertical" android:padding="20dp" android:layout_width="match_parent" android:layout_height="wrap_content">
-        <TextView android:id="@+id/title" android:text="Prosumer Dashboard" android:textSize="24sp" android:textStyle="bold" android:layout_width="match_parent" android:layout_height="wrap_content" />
-        <TextView android:id="@+id/summary" android:text="Loading bookings..." android:layout_width="match_parent" android:layout_height="wrap_content" />
-        <EditText android:id="@+id/nodeId" android:hint="Node ID" android:layout_width="match_parent" android:layout_height="wrap_content" />
-        <EditText android:id="@+id/energy" android:hint="Energy kWh" android:inputType="numberDecimal" android:layout_width="match_parent" android:layout_height="wrap_content" />
-        <Button android:id="@+id/bookButton" android:text="Create Booking Request" android:layout_width="match_parent" android:layout_height="wrap_content" />
-        <Button android:id="@+id/historyButton" android:text="Refresh Booking History" android:layout_width="match_parent" android:layout_height="wrap_content" />
-        <TextView android:id="@+id/history" android:layout_width="match_parent" android:layout_height="wrap_content" />
-        <TextView android:text="Nearby grid nodes are loaded from the API. Add Google Maps SDK key in AndroidManifest metadata for production map rendering." android:layout_width="match_parent" android:layout_height="wrap_content" />
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Screen">
+
+    <LinearLayout style="@style/Content">
+        <TextView
+            android:id="@+id/title"
+            style="@style/PageTitle"
+            android:text="Prosumer\nDashboard" />
+
+        <TextView
+            android:id="@+id/summary"
+            style="@style/PageSubtitle"
+            android:text="Loading bookings..." />
+
+        <LinearLayout style="@style/Panel">
+            <TextView
+                style="@style/BodyText"
+                android:text="New energy reservation"
+                android:textColor="#0F172A"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/nodeId"
+                style="@style/Input"
+                android:hint="Microgrid Node ID"
+                android:inputType="text" />
+
+            <EditText
+                android:id="@+id/energy"
+                style="@style/Input"
+                android:hint="Energy amount kWh"
+                android:inputType="numberDecimal" />
+
+            <Button
+                android:id="@+id/bookButton"
+                style="@style/PrimaryButton"
+                android:text="Create Booking Request" />
+
+            <Button
+                android:id="@+id/historyButton"
+                style="@style/SecondaryButton"
+                android:text="Refresh Booking History" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/Panel">
+            <TextView
+                style="@style/BodyText"
+                android:text="Booking history"
+                android:textColor="#0F172A"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/history"
+                style="@style/BodyText"
+                android:layout_marginTop="10dp"
+                android:text="No reservations loaded yet." />
+        </LinearLayout>
+
+        <TextView
+            style="@style/PageSubtitle"
+            android:text="Nearby grid nodes are loaded from the central API. Add a Google Maps SDK key for production map rendering." />
     </LinearLayout>
 </ScrollView>

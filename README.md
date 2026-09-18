@@ -40,8 +40,6 @@ dotnet run
 
 API URL: `http://localhost:5088/api`
 
-Do not commit `.env`. It is ignored by Git.
-
 ## Web Client Setup
 
 ```bash

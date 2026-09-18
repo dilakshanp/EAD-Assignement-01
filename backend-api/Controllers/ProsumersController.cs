@@ -30,6 +30,8 @@ public class ProsumersController : ControllerBase
     [HttpPut("{nic}")]
     public async Task<ApiResult<Prosumer>> Upsert(string nic, Prosumer prosumer)
     {
+        if (!AccessControl.HasRole(Request, UserRole.Backoffice))
+            return new(false, "Only Backoffice users can save prosumer profiles.", null);
         prosumer.Nic = nic;
         await _prosumers.UpsertAsync(prosumer);
         return new(true, "Prosumer saved.", prosumer);
@@ -45,6 +47,8 @@ public class ProsumersController : ControllerBase
     [HttpPost("{nic}/activate")]
     public async Task<ApiResult<bool>> Activate(string nic)
     {
+        if (!AccessControl.HasRole(Request, UserRole.Backoffice))
+            return new(false, "Only Backoffice users can reactivate prosumer accounts.", false);
         await _prosumers.SetStatusAsync(nic, AccountStatus.Active);
         return new(true, "Prosumer activated.", true);
     }
@@ -52,6 +56,8 @@ public class ProsumersController : ControllerBase
     [HttpPost("{nic}/deactivate")]
     public async Task<ApiResult<bool>> Deactivate(string nic)
     {
+        if (!AccessControl.HasRole(Request, UserRole.Backoffice))
+            return new(false, "Only Backoffice users can deactivate prosumer accounts.", false);
         await _prosumers.SetStatusAsync(nic, AccountStatus.Deactivated);
         return new(true, "Prosumer deactivated.", true);
     }

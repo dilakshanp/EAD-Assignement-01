@@ -29,6 +29,8 @@ public class NodesController : ControllerBase
     [HttpPost]
     public async Task<ApiResult<MicrogridNode>> Create(MicrogridNode node)
     {
+        if (!AccessControl.HasRole(Request, UserRole.Backoffice, UserRole.GridOperator))
+            return new(false, "Only Backoffice or Grid Operator users can create microgrid nodes.", null);
         await _nodes.CreateAsync(node);
         return new(true, "Microgrid node created.", node);
     }
@@ -36,11 +38,18 @@ public class NodesController : ControllerBase
     [HttpPut("{id}")]
     public async Task<ApiResult<MicrogridNode>> Update(string id, MicrogridNode node)
     {
+        if (!AccessControl.HasRole(Request, UserRole.Backoffice, UserRole.GridOperator))
+            return new(false, "Only Backoffice or Grid Operator users can update microgrid nodes.", null);
         node.Id = id;
         await _nodes.UpdateAsync(id, node);
         return new(true, "Microgrid node updated.", node);
     }
 
     [HttpPost("{id}/deactivate")]
-    public Task<ApiResult<bool>> Deactivate(string id) => _nodes.DeactivateAsync(id);
+    public Task<ApiResult<bool>> Deactivate(string id)
+    {
+        if (!AccessControl.HasRole(Request, UserRole.Backoffice, UserRole.GridOperator))
+            return Task.FromResult(new ApiResult<bool>(false, "Only Backoffice or Grid Operator users can deactivate microgrid nodes.", false));
+        return _nodes.DeactivateAsync(id);
+    }
 }
