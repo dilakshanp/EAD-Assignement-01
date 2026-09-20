@@ -1,7 +1,9 @@
 package com.sliit.solarmicrogrid;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -10,6 +12,7 @@ import android.widget.Toast;
 import org.json.JSONObject;
 
 public class MainActivity extends Activity {
+    private static final String SESSION = "smart_solar_session";
     private ApiClient api;
 
     @Override
@@ -32,9 +35,18 @@ public class MainActivity extends Activity {
                 JSONObject response = api.post("/auth/login", body);
                 runOnUiThread(() -> {
                     if (response.optBoolean("success")) {
-                        Intent intent = new Intent(this, DashboardActivity.class);
-                        intent.putExtra("nic", username.getText().toString());
-                        startActivity(intent);
+                        JSONObject user = response.optJSONObject("data");
+                        String role = user == null ? "" : user.optString("role", "");
+                        String prosumerNic = user == null ? username.getText().toString() : user.optString("prosumerNic", username.getText().toString());
+                        saveSession(username.getText().toString(), role, prosumerNic);
+
+                        if (isOperatorRole(role)) {
+                            startActivity(new Intent(this, OperatorActivity.class));
+                        } else {
+                            Intent intent = new Intent(this, DashboardActivity.class);
+                            intent.putExtra("nic", prosumerNic.isEmpty() ? username.getText().toString() : prosumerNic);
+                            startActivity(intent);
+                        }
                     } else {
                         Toast.makeText(this, response.optString("message"), Toast.LENGTH_LONG).show();
                     }
@@ -45,6 +57,25 @@ public class MainActivity extends Activity {
         }).start());
 
         register.setOnClickListener(v -> startActivity(new Intent(this, RegisterActivity.class)));
-        operator.setOnClickListener(v -> startActivity(new Intent(this, OperatorActivity.class)));
+        operator.setOnClickListener(v -> {
+            String role = getSharedPreferences(SESSION, Context.MODE_PRIVATE).getString("role", "");
+            if (isOperatorRole(role)) {
+                startActivity(new Intent(this, OperatorActivity.class));
+            } else {
+                Toast.makeText(this, "Login as Backoffice or Grid Operator to use QR verification.", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void saveSession(String username, String role, String prosumerNic) {
+        SharedPreferences.Editor editor = getSharedPreferences(SESSION, Context.MODE_PRIVATE).edit();
+        editor.putString("username", username);
+        editor.putString("role", role);
+        editor.putString("prosumerNic", prosumerNic);
+        editor.apply();
+    }
+
+    private boolean isOperatorRole(String role) {
+        return "Backoffice".equals(role) || "GridOperator".equals(role);
     }
 }

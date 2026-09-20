@@ -12,13 +12,29 @@
             style="@style/PageSubtitle"
             android:text="Loading bookings..." />
 
+        <Button
+            android:id="@+id/editProfileButton"
+            style="@style/SecondaryButton"
+            android:text="Edit Prosumer Profile" />
+
+        <Button
+            android:id="@+id/mapButton"
+            style="@style/SecondaryButton"
+            android:text="View Nearby Grid Nodes Map" />
+
         <LinearLayout style="@style/Panel">
             <TextView
                 style="@style/BodyText"
-                android:text="New energy reservation"
+                android:text="Energy reservation"
                 android:textColor="#0F172A"
                 android:textSize="18sp"
                 android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/reservationId"
+                style="@style/Input"
+                android:hint="Reservation ID for update/cancel"
+                android:inputType="text" />
 
             <EditText
                 android:id="@+id/nodeId"
@@ -38,6 +54,16 @@
                 android:text="Create Booking Request" />
 
             <Button
+                android:id="@+id/updateButton"
+                style="@style/SecondaryButton"
+                android:text="Modify Reservation" />
+
+            <Button
+                android:id="@+id/cancelButton"
+                style="@style/DangerButton"
+                android:text="Cancel Reservation" />
+
+            <Button
                 android:id="@+id/historyButton"
                 style="@style/SecondaryButton"
                 android:text="Refresh Booking History" />
@@ -46,10 +72,68 @@
         <LinearLayout style="@style/Panel">
             <TextView
                 style="@style/BodyText"
-                android:text="Booking history"
+                android:text="Last booking action summary"
                 android:textColor="#0F172A"
                 android:textSize="18sp"
                 android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/actionSummary"
+                style="@style/BodyText"
+                android:layout_marginTop="10dp"
+                android:text="Create, modify, or cancel a booking to see a summary here." />
+        </LinearLayout>
+
+        <LinearLayout style="@style/Panel">
+            <TextView
+                style="@style/BodyText"
+                android:text="Transaction QR"
+                android:textColor="#0F172A"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <com.sliit.solarmicrogrid.QrCodeView
+                android:id="@+id/qrCodeView"
+                android:layout_width="220dp"
+                android:layout_height="220dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="12dp" />
+
+            <TextView
+                android:id="@+id/qrText"
+                style="@style/BodyText"
+                android:layout_marginTop="10dp"
+                android:text="Approved reservation QR will appear after booking history loads." />
+        </LinearLayout>
+
+        <LinearLayout style="@style/Panel">
+            <TextView
+                style="@style/BodyText"
+                android:text="Bookings"
+                android:textColor="#0F172A"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/searchBooking"
+                style="@style/Input"
+                android:hint="Search ID, node, status, QR"
+                android:inputType="text" />
+
+            <Button
+                android:id="@+id/searchButton"
+                style="@style/SecondaryButton"
+                android:text="Search Bookings" />
+
+            <Button
+                android:id="@+id/pendingButton"
+                style="@style/SecondaryButton"
+                android:text="Show Pending Bookings" />
+
+            <Button
+                android:id="@+id/allButton"
+                style="@style/SecondaryButton"
+                android:text="Show All Bookings" />
 
             <TextView
                 android:id="@+id/history"

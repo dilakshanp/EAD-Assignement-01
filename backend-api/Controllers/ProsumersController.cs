@@ -14,7 +14,15 @@ namespace SmartSolar.Api.Controllers;
 public class ProsumersController : ControllerBase
 {
     private readonly ProsumerService _prosumers;
-    public ProsumersController(ProsumerService prosumers) => _prosumers = prosumers;
+    private readonly UserService _users;
+    private readonly AuthService _auth;
+
+    public ProsumersController(ProsumerService prosumers, UserService users, AuthService auth)
+    {
+        _prosumers = prosumers;
+        _users = users;
+        _auth = auth;
+    }
 
     [HttpGet]
     public Task<List<Prosumer>> GetAll() => _prosumers.GetAllAsync();
@@ -24,6 +32,45 @@ public class ProsumersController : ControllerBase
     {
         var prosumer = await _prosumers.GetAsync(nic);
         return prosumer is null ? NotFound() : Ok(prosumer);
+    }
+
+    // Mobile self-registration for solar prosumers. Backoffice-only admin updates stay on PUT /{nic}.
+    [HttpPost("register")]
+    public async Task<ApiResult<Prosumer>> Register(ProsumerRegisterRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Nic))
+            return new(false, "NIC is required.", null);
+        if (string.IsNullOrWhiteSpace(request.Password) || request.Password.Length < 6)
+            return new(false, "Password must contain at least 6 characters.", null);
+
+        var prosumer = new Prosumer
+        {
+            Nic = request.Nic,
+            FullName = request.FullName,
+            Phone = request.Phone,
+            Email = request.Email,
+            Address = request.Address,
+            SolarCapacityKw = request.SolarCapacityKw,
+            Status = AccountStatus.Active,
+            CreatedAtUtc = DateTime.UtcNow
+        };
+
+        await _prosumers.UpsertAsync(prosumer);
+
+        var existingUser = await _users.GetByUsernameAsync(request.Nic);
+        if (existingUser is null)
+        {
+            await _users.CreateAsync(new AppUser
+            {
+                Username = request.Nic,
+                PasswordHash = _auth.HashPassword(request.Password),
+                Role = UserRole.Prosumer,
+                ProsumerNic = request.Nic,
+                Status = AccountStatus.Active
+            });
+        }
+
+        return new(true, "Prosumer profile registered. Use your NIC and password to login.", prosumer);
     }
 
     // Creates or updates a prosumer profile using NIC as the primary key.
@@ -62,3 +109,5 @@ public class ProsumersController : ControllerBase
         return new(true, "Prosumer deactivated.", true);
     }
 }
+
+public record ProsumerRegisterRequest(string Nic, string FullName, string Phone, string Email, string Address, double SolarCapacityKw, string Password);

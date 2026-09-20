@@ -8,18 +8,76 @@
 
         <TextView
             style="@style/PageTitle"
-            android:text="Grid Operator\nVerification" />
+            android:text="Grid Operator\nConsole" />
 
         <TextView
             style="@style/PageSubtitle"
-            android:text="Enter or scan a reservation transaction code to finalize an approved energy transfer." />
+            android:text="Monitor bookings, update battery availability, and finalize QR verified energy transfers." />
 
         <LinearLayout style="@style/Panel">
+            <TextView
+                style="@style/BodyText"
+                android:text="Battery slot availability"
+                android:textColor="#0F172A"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/operatorNodeId"
+                style="@style/Input"
+                android:hint="Node ID"
+                android:inputType="text" />
+
+            <EditText
+                android:id="@+id/operatorSlots"
+                style="@style/Input"
+                android:hint="Available battery slots"
+                android:inputType="number" />
+
+            <Button
+                android:id="@+id/updateSlotsButton"
+                style="@style/PrimaryButton"
+                android:text="Update Battery Slots" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/Panel">
+            <TextView
+                style="@style/BodyText"
+                android:text="Booking monitor"
+                android:textColor="#0F172A"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/loadBookingsButton"
+                style="@style/SecondaryButton"
+                android:text="Load Power Trading Bookings" />
+
+            <TextView
+                android:id="@+id/bookings"
+                style="@style/BodyText"
+                android:layout_marginTop="12dp"
+                android:text="Bookings will appear here." />
+        </LinearLayout>
+
+        <LinearLayout style="@style/Panel">
+            <TextView
+                style="@style/BodyText"
+                android:text="QR transfer verification"
+                android:textColor="#0F172A"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
             <EditText
                 android:id="@+id/qrCode"
                 style="@style/Input"
                 android:hint="QR transaction code"
                 android:inputType="textCapCharacters" />
+
+            <Button
+                android:id="@+id/scanButton"
+                style="@style/SecondaryButton"
+                android:text="Scan QR With Camera" />
 
             <Button
                 android:id="@+id/finalizeButton"

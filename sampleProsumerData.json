@@ -1,0 +1,102 @@
+[
+  {
+    "nic": "   ",
+    "fullName": "Kasun Perera",
+    "phone": "0771234567",
+    "email": "kasun.perera@example.com",
+    "address": "No. 25, Temple Road, Negombo",
+    "solarCapacity": "5 kW",
+    "password": "Solar@2026Test",
+    "confirmPassword": "Solar@2026Test"
+  },
+  {
+    "nic": "200112345678",
+    "fullName": "Nimal Fernando",
+    "phone": "0719876543",
+    "email": "nimal.fernando@example.com",
+    "address": "No. 42, Main Street, Kurunegala",
+    "solarCapacity": "10 kW",
+    "password": "Nimal@Solar2026",
+    "confirmPassword": "Nimal@Solar2026"
+  },
+  {
+    "nic": "199745612389",
+    "fullName": "Dinesh Kumar",
+    "phone": "0764567890",
+    "email": "dinesh.kumar@example.com",
+    "address": "No. 18, Station Road, Batticaloa",
+    "solarCapacity": "3 kW",
+    "password": "Dinesh@Solar123",
+    "confirmPassword": "Dinesh@Solar123"
+  },
+  {
+    "nic": "200023456789",
+    "fullName": "Tharindu Silva",
+    "phone": "0752345678",
+    "email": "tharindu.silva@example.com",
+    "address": "No. 67, Lake Road, Kandy",
+    "solarCapacity": "7 kW",
+    "password": "Tharindu@2026",
+    "confirmPassword": "Tharindu@2026"
+  },
+  {
+    "nic": "199634567890",
+    "fullName": "Mohamed Rizwan",
+    "phone": "0723456789",
+    "email": "mohamed.rizwan@example.com",
+    "address": "No. 12, Beach Road, Kalmunai",
+    "solarCapacity": "5 kW",
+    "password": "Rizwan@Solar456",
+    "confirmPassword": "Rizwan@Solar456"
+  },
+  {
+    "nic": "200245678901",
+    "fullName": "Suresh Rajan",
+    "phone": "0785678901",
+    "email": "suresh.rajan@example.com",
+    "address": "No. 33, Hospital Road, Jaffna",
+    "solarCapacity": "8 kW",
+    "password": "Suresh@Solar789",
+    "confirmPassword": "Suresh@Solar789"
+  },
+  {
+    "nic": "199978901234",
+    "fullName": "Amal Jayasinghe",
+    "phone": "0706789012",
+    "email": "amal.jayasinghe@example.com",
+    "address": "No. 91, Galle Road, Matara",
+    "solarCapacity": "4 kW",
+    "password": "Amal@Solar2026",
+    "confirmPassword": "Amal@Solar2026"
+  },
+  {
+    "nic": "200356789012",
+    "fullName": "Sanjay Pradeep",
+    "phone": "0747890123",
+    "email": "sanjay.pradeep@example.com",
+    "address": "No. 56, New Road, Anuradhapura",
+    "solarCapacity": "6 kW",
+    "password": "Sanjay@Solar321",
+    "confirmPassword": "Sanjay@Solar321"
+  },
+  {
+    "nic": "199812345678",
+    "fullName": "Ravindu Wijeratne",
+    "phone": "0778901234",
+    "email": "ravindu.wijeratne@example.com",
+    "address": "No. 14, Hill Street, Ratnapura",
+    "solarCapacity": "10 kW",
+    "password": "Ravindu@Solar654",
+    "confirmPassword": "Ravindu@Solar654"
+  },
+  {
+    "nic": "200467890123",
+    "fullName": "Fathima Nazeera",
+    "phone": "0719012345",
+    "email": "fathima.nazeera@example.com",
+    "address": "No. 28, Market Road, Ampara",
+    "solarCapacity": "3 kW",
+    "password": "Fathima@Solar987",
+    "confirmPassword": "Fathima@Solar987"
+  }
+]

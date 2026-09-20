@@ -46,8 +46,23 @@ public class ReservationsController : ControllerBase
         return _reservations.CancelAsync(id);
     }
 
+
+    [HttpPost("mobile")]
+    public Task<ApiResult<EnergyReservation>> MobileCreate(EnergyReservation reservation) => _reservations.CreateAsync(reservation);
+
+    [HttpPut("mobile/{id}")]
+    public Task<ApiResult<EnergyReservation>> MobileUpdate(string id, EnergyReservation reservation) => _reservations.UpdateAsync(id, reservation);
+
+    [HttpPost("mobile/{id}/cancel")]
+    public Task<ApiResult<bool>> MobileCancel(string id) => _reservations.CancelAsync(id);
+
     [HttpPost("complete-by-qr")]
-    public Task<ApiResult<EnergyReservation>> CompleteByQr(QrCompleteRequest request) => _reservations.CompleteByQrAsync(request.TransactionCode);
+    public Task<ApiResult<EnergyReservation>> CompleteByQr(QrCompleteRequest request)
+    {
+        if (!AccessControl.HasRole(Request, UserRole.Backoffice, UserRole.GridOperator))
+            return Task.FromResult(new ApiResult<EnergyReservation>(false, "Only Backoffice or Grid Operator users can finalize QR transfers.", null));
+        return _reservations.CompleteByQrAsync(request.TransactionCode);
+    }
 }
 
 public record QrCompleteRequest(string TransactionCode);

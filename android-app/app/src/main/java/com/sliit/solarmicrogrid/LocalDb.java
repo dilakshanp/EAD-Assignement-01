@@ -6,13 +6,13 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class LocalDb extends SQLiteOpenHelper {
     public LocalDb(Context context) {
-        super(context, "smart_solar.db", null, 1);
+        super(context, "smart_solar.db", null, 2);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE local_user(nic TEXT PRIMARY KEY, full_name TEXT, email TEXT, phone TEXT)");
-        db.execSQL("CREATE TABLE cached_reservation(id TEXT PRIMARY KEY, nic TEXT, status TEXT, transaction_code TEXT)");
+        db.execSQL("CREATE TABLE cached_reservation(id TEXT PRIMARY KEY, nic TEXT, node_id TEXT, status TEXT, transaction_code TEXT, slot_start TEXT, energy_kwh REAL)");
     }
 
     @Override

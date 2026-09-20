@@ -47,6 +47,19 @@
                 android:hint="Solar capacity kW"
                 android:inputType="numberDecimal" />
 
+
+            <EditText
+                android:id="@+id/registerPassword"
+                style="@style/Input"
+                android:hint="Password"
+                android:inputType="textPassword" />
+
+            <EditText
+                android:id="@+id/confirmPassword"
+                style="@style/Input"
+                android:hint="Confirm password"
+                android:inputType="textPassword" />
+
             <Button
                 android:id="@+id/saveButton"
                 style="@style/PrimaryButton"

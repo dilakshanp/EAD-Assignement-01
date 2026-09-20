@@ -18,6 +18,15 @@ public class NodeService
     public Task CreateAsync(MicrogridNode node) => _db.Nodes.InsertOneAsync(node);
     public Task UpdateAsync(string id, MicrogridNode node) => _db.Nodes.ReplaceOneAsync(x => x.Id == id, node);
 
+    public async Task<ApiResult<MicrogridNode>> UpdateBatterySlotsAsync(string id, int batteryStorageSlots)
+    {
+        if (batteryStorageSlots < 0) return new(false, "Battery slots cannot be negative.", null);
+        var result = await _db.Nodes.UpdateOneAsync(x => x.Id == id, Builders<MicrogridNode>.Update.Set(x => x.BatteryStorageSlots, batteryStorageSlots));
+        if (result.MatchedCount == 0) return new(false, "Microgrid node was not found.", null);
+        var node = await GetAsync(id);
+        return new(true, "Battery slot availability updated.", node);
+    }
+
     public async Task<ApiResult<bool>> DeactivateAsync(string id)
     {
         var activeReservations = await _db.Reservations.CountDocumentsAsync(x =>
