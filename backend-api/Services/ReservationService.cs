@@ -18,6 +18,53 @@ public class ReservationService
     public Task<List<EnergyReservation>> GetByProsumerAsync(string nic) => _db.Reservations.Find(x => x.ProsumerNic == nic).ToListAsync();
     public async Task<EnergyReservation?> GetAsync(string id) => await _db.Reservations.Find(x => x.Id == id).FirstOrDefaultAsync();
 
+    public async Task<List<AvailableSlot>> GetAvailableSlotsAsync(string nodeId, DateTime? requestedDate = null)
+    {
+        var node = await _db.Nodes.Find(x => x.Id == nodeId && x.IsActive).FirstOrDefaultAsync();
+        if (node is null) return [];
+        var now = DateTime.UtcNow;
+        var slots = new List<AvailableSlot>();
+        var schedules = node.Schedules.Count > 0
+            ? node.Schedules
+            : [new NodeSchedule { StartUtc = now.Date.AddHours(8), EndUtc = now.Date.AddHours(17), AvailableSlots = node.BatteryStorageSlots }];
+        var firstDay = requestedDate?.Date ?? now.Date;
+        var lastDay = requestedDate?.Date ?? now.Date.AddDays(7);
+        if (firstDay < now.Date || firstDay > now.Date.AddDays(7)) return slots;
+        for (var day = firstDay; day <= lastDay; day = day.AddDays(1))
+        {
+            foreach (var schedule in schedules)
+            {
+                var start = day.Add(schedule.StartUtc.TimeOfDay);
+                var end = day.Add(schedule.EndUtc.TimeOfDay);
+                if (end <= start) end = end.AddDays(1);
+                for (var slotStart = start; slotStart.AddHours(1) <= end; slotStart = slotStart.AddHours(1))
+                {
+                    var slotEnd = slotStart.AddHours(1);
+                    if (slotStart <= now || slotStart > now.AddDays(7)) continue;
+                    var reserved = await _db.Reservations.CountDocumentsAsync(x => x.NodeId == nodeId
+                        && (x.Status == ReservationStatus.Pending || x.Status == ReservationStatus.Approved)
+                        && x.SlotStartUtc < slotEnd && slotStart < x.SlotEndUtc);
+                    var remaining = Math.Max(0, schedule.AvailableSlots - (int)reserved);
+                    slots.Add(new AvailableSlot($"{nodeId}:{slotStart.Ticks}", slotStart, slotEnd, remaining, remaining > 0, (int)reserved));
+                }
+            }
+        }
+        return slots.OrderBy(x => x.StartUtc).ToList();
+    }
+
+    public async Task<ApiResult<EnergyReservation>> CreateFromSlotAsync(string nic, string nodeId, string slotId, double energyKwh, bool approveImmediately)
+    {
+        if (!TryReadSlotId(slotId, nodeId, out var start)) return new(false, "The selected slot is invalid.", null);
+        var reservation = new EnergyReservation { ProsumerNic = nic, NodeId = nodeId, SlotStartUtc = start, SlotEndUtc = start.AddHours(1), EnergyKwh = energyKwh };
+        return await CreateAsync(reservation, approveImmediately);
+    }
+
+    public async Task<ApiResult<EnergyReservation>> UpdateFromSlotAsync(string id, MobileReservationRequest request, string? ownerNic)
+    {
+        if (!TryReadSlotId(request.SlotId, request.NodeId, out var start)) return new(false, "The selected slot is invalid.", null);
+        return await UpdateAsync(id, new EnergyReservation { ProsumerNic = request.ProsumerNic, NodeId = request.NodeId, SlotStartUtc = start, SlotEndUtc = start.AddHours(1), EnergyKwh = request.EnergyKwh }, ownerNic);
+    }
+
     public async Task<ApiResult<EnergyReservation>> CreateAsync(EnergyReservation reservation, bool approveImmediately = true)
     {
         var node = await _db.Nodes.Find(x => x.Id == reservation.NodeId && x.IsActive).FirstOrDefaultAsync();
@@ -109,16 +156,25 @@ public class ReservationService
         var prosumer = await _db.Prosumers.Find(x => x.Nic == reservation.ProsumerNic && x.Status == AccountStatus.Active).FirstOrDefaultAsync();
         if (prosumer is null) return new(false, "The prosumer account is not active.", false);
 
+        var schedule = node.Schedules.FirstOrDefault(x => x.StartUtc.TimeOfDay <= reservation.SlotStartUtc.TimeOfDay && x.EndUtc.TimeOfDay >= reservation.SlotEndUtc.TimeOfDay);
+        var slotCapacity = node.Schedules.Count > 0 ? schedule?.AvailableSlots ?? 0 : node.BatteryStorageSlots;
+        if (slotCapacity <= 0) return new(false, "The selected node has no available schedule slot.", false);
+
         var overlapping = await _db.Reservations.CountDocumentsAsync(x =>
             x.Id != ignoredId && x.NodeId == reservation.NodeId
             && (x.Status == ReservationStatus.Pending || x.Status == ReservationStatus.Approved)
             && x.SlotStartUtc < reservation.SlotEndUtc && reservation.SlotStartUtc < x.SlotEndUtc);
-        if (overlapping > 0) return new(false, "The selected node already has a reservation in this time range.", false);
+        if (overlapping >= slotCapacity) return new(false, "The selected slot is already fully booked.", false);
 
-        var schedule = node.Schedules.FirstOrDefault(x => x.StartUtc <= reservation.SlotStartUtc && x.EndUtc >= reservation.SlotEndUtc);
-        if (node.Schedules.Count > 0 && (schedule is null || schedule.AvailableSlots <= 0))
-            return new(false, "The selected node has no available schedule slot.", false);
         return new(true, "Reservation is valid.", true);
+    }
+
+    private static bool TryReadSlotId(string slotId, string nodeId, out DateTime start)
+    {
+        start = default;
+        var prefix = nodeId + ":";
+        return slotId.StartsWith(prefix, StringComparison.Ordinal) && long.TryParse(slotId[prefix.Length..], out var ticks)
+            && (start = new DateTime(ticks, DateTimeKind.Utc)) != default;
     }
 
     private static ApiResult<bool> ValidateReservationWindow(DateTime slotStartUtc, DateTime slotEndUtc, bool requireNotice)

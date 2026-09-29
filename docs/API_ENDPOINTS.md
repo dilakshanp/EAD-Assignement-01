@@ -34,7 +34,9 @@ After login, send the returned token on protected requests:
 
 - `GET /api/reservations`
 - `GET /api/reservations/prosumer/{nic}`
+- `GET /api/reservations/nodes/{nodeId}/available-slots`
 - `POST /api/reservations`
+- `POST /api/reservations/from-slot`
 - `PUT /api/reservations/{id}`
 - `POST /api/reservations/{id}/cancel`
 - `POST /api/reservations/mobile`

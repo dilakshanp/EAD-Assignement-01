@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">Smart Solar Microgrid</string>
-    <string name="api_base">http://192.168.228.231:5088/api</string>
+    <string name="api_base">http://192.168.5.231:5088/api</string>
 </resources>

@@ -1,6 +1,7 @@
 package com.sliit.solarmicrogrid;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.res.ColorStateList;
@@ -40,6 +41,11 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,6 +60,8 @@ public class DashboardActivity extends Activity {
     private EditText manageEnergy;
     private EditText searchBooking;
     private Spinner nodeSelector;
+    private Spinner slotSelector;
+    private MaterialButton selectDateButton;
     private Spinner manageNodeSelector;
     private Spinner bookingSelector;
     private LinearLayout historyList;
@@ -65,9 +73,13 @@ public class DashboardActivity extends Activity {
     private final ArrayList<JSONObject> bookingItems = new ArrayList<>();
     private final ArrayList<String> nodeIds = new ArrayList<>();
     private final ArrayList<String> nodeLabels = new ArrayList<>();
+    private final ArrayList<String> slotIds = new ArrayList<>();
+    private final ArrayList<String> slotLabels = new ArrayList<>();
+    private final ArrayList<Boolean> slotAvailability = new ArrayList<>();
     private final HashMap<String, String> nodeNames = new HashMap<>();
     private Typeface sourceSansRegular;
     private Typeface sourceSansBold;
+    private LocalDate selectedSlotDate;
     private boolean syncingBottomNav = false;
 
     @Override
@@ -88,16 +100,24 @@ public class DashboardActivity extends Activity {
         manageEnergy = findViewById(R.id.manageEnergy);
         searchBooking = findViewById(R.id.searchBooking);
         nodeSelector = findViewById(R.id.nodeSelector);
+        slotSelector = findViewById(R.id.slotSelector);
+        selectDateButton = findViewById(R.id.selectDateButton);
         manageNodeSelector = findViewById(R.id.manageNodeSelector);
         bookingSelector = findViewById(R.id.bookingSelector);
         historyList = findViewById(R.id.historyList);
         selectedBookingPreview = findViewById(R.id.selectedBookingPreview);
         bookingEstimate = findViewById(R.id.bookingEstimate);
+        selectedSlotDate = LocalDate.now();
+        updateSelectedDateButton();
+        selectDateButton.setOnClickListener(v -> showSlotDatePicker());
 
         nodeSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position >= 0 && position < nodeIds.size()) nodeId.setText(nodeIds.get(position));
+                if (position >= 0 && position < nodeIds.size()) {
+                    nodeId.setText(nodeIds.get(position));
+                    loadAvailableSlots(nodeIds.get(position));
+                }
             }
 
             @Override public void onNothingSelected(AdapterView<?> parent) {}
@@ -231,8 +251,69 @@ public class DashboardActivity extends Activity {
         if (!nodeIds.isEmpty()) {
             nodeId.setText(nodeIds.get(0));
             manageNodeId.setText(nodeIds.get(0));
+            loadAvailableSlots(nodeIds.get(0));
         }
         if (currentRows.length() > 0) renderRows(currentRows, false);
+    }
+
+    private void showSlotDatePicker() {
+        LocalDate current = selectedSlotDate == null ? LocalDate.now() : selectedSlotDate;
+        DatePickerDialog picker = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
+            selectedSlotDate = LocalDate.of(year, month + 1, dayOfMonth);
+            updateSelectedDateButton();
+            String nodeValue = nodeId.getText().toString().trim();
+            if (!nodeValue.isEmpty()) loadAvailableSlots(nodeValue);
+        }, current.getYear(), current.getMonthValue() - 1, current.getDayOfMonth());
+        picker.getDatePicker().setMinDate(System.currentTimeMillis() - 1000L);
+        picker.getDatePicker().setMaxDate(System.currentTimeMillis() + 7L * 24L * 60L * 60L * 1000L);
+        picker.show();
+    }
+
+    private void updateSelectedDateButton() {
+        if (selectDateButton == null) return;
+        LocalDate date = selectedSlotDate == null ? LocalDate.now() : selectedSlotDate;
+        selectDateButton.setText(date.equals(LocalDate.now())
+                ? "Today, " + date.format(DateTimeFormatter.ofPattern("dd MMM yyyy"))
+                : date.format(DateTimeFormatter.ofPattern("dd MMM yyyy")));
+    }
+
+    private void loadAvailableSlots(String nodeValue) {
+        LocalDate date = selectedSlotDate == null ? LocalDate.now() : selectedSlotDate;
+        runOnUiThread(() -> bookingEstimate.setText("Loading slots for " + date.format(DateTimeFormatter.ofPattern("dd MMM yyyy")) + "..."));
+        new Thread(() -> {
+            try {
+                JSONArray rows = new JSONArray(api.get("/reservations/nodes/" + nodeValue + "/available-slots?date=" + date));
+                slotIds.clear();
+                slotLabels.clear();
+                slotAvailability.clear();
+                for (int i = 0; i < rows.length(); i++) {
+                    JSONObject slot = rows.optJSONObject(i);
+                    if (slot == null) continue;
+                    boolean available = slot.optBoolean("isAvailable") && slot.optInt("remainingSlots") > 0;
+                    int remaining = slot.optInt("remainingSlots");
+                    int booked = slot.optInt("bookedSlots");
+                    slotIds.add(slot.optString("slotId"));
+                    slotAvailability.add(available);
+                    String status = available ? "Available - " + remaining + " left" : "Booked";
+                    if (booked > 0 && available) status += " / " + booked + " booked";
+                    slotLabels.add(slotTimeRange(slot.optString("startUtc"), slot.optString("endUtc")) + "  |  " + status);
+                }
+                if (slotLabels.isEmpty()) slotLabels.add("No slots for selected date");
+                runOnUiThread(() -> {
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, slotLabels);
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    slotSelector.setAdapter(adapter);
+                    bookingEstimate.setText(slotIds.isEmpty()
+                            ? "No schedule slots found for this node on " + date.format(DateTimeFormatter.ofPattern("dd MMM yyyy")) + "."
+                            : "Slots for " + date.format(DateTimeFormatter.ofPattern("dd MMM yyyy")) + ". Booked slots are shown for reference; choose an available slot to continue.");
+                });
+            } catch (Exception ex) {
+                slotIds.clear();
+                slotLabels.clear();
+                slotAvailability.clear();
+                runOnUiThread(() -> bookingEstimate.setText("Available slots could not be loaded. Refresh and try again."));
+            }
+        }).start();
     }
 
     private void populateManageFields(int index) {
@@ -272,17 +353,20 @@ public class DashboardActivity extends Activity {
                 EditText selectedEnergy = id == null ? energy : manageEnergy;
                 String nodeValue = selectedNode.getText().toString().trim();
                 String energyValue = selectedEnergy.getText().toString().trim();
-                if (nodeValue.isEmpty() || energyValue.isEmpty()) {
-                    runOnUiThread(() -> Toast.makeText(this, "Select a node and enter an energy amount.", Toast.LENGTH_LONG).show());
+                int slotPosition = slotSelector.getSelectedItemPosition();
+                if (nodeValue.isEmpty() || energyValue.isEmpty() || slotPosition < 0 || slotPosition >= slotIds.size()) {
+                    runOnUiThread(() -> Toast.makeText(this, "Select a node, available time slot, and energy amount.", Toast.LENGTH_LONG).show());
+                    return;
+                }
+                if (slotPosition >= slotAvailability.size() || !slotAvailability.get(slotPosition)) {
+                    runOnUiThread(() -> Toast.makeText(this, "That slot is already booked. Please choose an available slot.", Toast.LENGTH_LONG).show());
                     return;
                 }
 
-                Instant start = Instant.now().plus(1, ChronoUnit.DAYS);
                 JSONObject body = new JSONObject();
                 body.put("prosumerNic", nic);
                 body.put("nodeId", nodeValue);
-                body.put("slotStartUtc", start.toString());
-                body.put("slotEndUtc", start.plus(1, ChronoUnit.HOURS).toString());
+                body.put("slotId", slotIds.get(slotPosition));
                 body.put("energyKwh", Double.parseDouble(energyValue));
 
                 JSONObject response = id == null ? api.post("/reservations/mobile", body) : api.put("/reservations/mobile/" + id, body);
@@ -409,7 +493,7 @@ public class DashboardActivity extends Activity {
                     Toast.makeText(this, "Select a grid node.", Toast.LENGTH_LONG).show();
                     return;
                 }
-                updateReservation(reservationId, pickerIds.get(index), amount.getText().toString().trim());
+                updateReservation(reservationId, pickerIds.get(index), slotIdFor(item), amount.getText().toString().trim());
                 dialog.dismiss();
             });
         });
@@ -444,20 +528,18 @@ public class DashboardActivity extends Activity {
         dialog.show();
     }
 
-    private void updateReservation(String id, String selectedNodeId, String energyValue) {
+    private void updateReservation(String id, String selectedNodeId, String slotId, String energyValue) {
         if (id == null || id.isEmpty()) return;
-        if (selectedNodeId == null || selectedNodeId.isEmpty() || energyValue == null || energyValue.isEmpty()) {
+        if (selectedNodeId == null || selectedNodeId.isEmpty() || slotId == null || slotId.isEmpty() || energyValue == null || energyValue.isEmpty()) {
             Toast.makeText(this, "Select a node and enter an energy amount.", Toast.LENGTH_LONG).show();
             return;
         }
         new Thread(() -> {
             try {
-                Instant start = Instant.now().plus(1, ChronoUnit.DAYS);
                 JSONObject body = new JSONObject();
                 body.put("prosumerNic", nic);
                 body.put("nodeId", selectedNodeId);
-                body.put("slotStartUtc", start.toString());
-                body.put("slotEndUtc", start.plus(1, ChronoUnit.HOURS).toString());
+                body.put("slotId", slotId);
                 body.put("energyKwh", Double.parseDouble(energyValue));
                 JSONObject response = api.put("/reservations/mobile/" + id, body);
                 runOnUiThread(() -> updateActionSummary("Booking updated", response));
@@ -625,7 +707,7 @@ public class DashboardActivity extends Activity {
         content.addView(row);
 
         TextView details = new TextView(this);
-        details.setText(item.optDouble("energyKwh") + " kWh  |  " + compactDate(item.optString("slotStartUtc")));
+        details.setText(String.format(java.util.Locale.US, "%.1f kWh  ·  %s", item.optDouble("energyKwh"), compactDate(item.optString("slotStartUtc"))));
         details.setTextColor(Color.rgb(96, 117, 109));
         details.setTextSize(13);
         details.setPadding(0, dp(9), 0, 0);
@@ -633,8 +715,9 @@ public class DashboardActivity extends Activity {
 
         TextView qr = new TextView(this);
         String code = item.optString("transactionCode");
-        qr.setText((code == null || code.isEmpty()) ? "QR will appear after approval" : "QR ready for dispatch");
-        qr.setTextColor(Color.rgb(22, 59, 50));
+        boolean qrReady = "Approved".equals(status) && code != null && !code.isEmpty();
+        qr.setText(qrReady ? "QR ready for dispatch" : ("Pending".equals(status) ? "Waiting for approval" : "No QR for this booking"));
+        qr.setTextColor(qrReady ? getColor(R.color.brand_primary) : getColor(R.color.text_secondary));
         qr.setTextSize(13);
         qr.setPadding(0, dp(6), 0, 0);
         content.addView(qr);
@@ -771,8 +854,9 @@ public class DashboardActivity extends Activity {
 
     private String bookingSummary(JSONObject item) {
         String code = item.optString("transactionCode");
-        String qr = code == null || code.isEmpty() ? "QR not available yet" : "QR ready for dispatch";
-        return statusLabel(item) + " booking\n"
+        String status = statusLabel(item);
+        String qr = "Approved".equals(status) && code != null && !code.isEmpty() ? "QR ready for dispatch" : ("Pending".equals(status) ? "Waiting for approval" : "No QR for this booking");
+        return status + " booking\n"
                 + displayNode(item.optString("nodeId")) + "\n"
                 + item.optDouble("energyKwh") + " kWh\n"
                 + compactDate(item.optString("slotStartUtc")) + "\n"
@@ -784,7 +868,7 @@ public class DashboardActivity extends Activity {
         String node = displayNode(item.optString("nodeId"));
         String energy = String.format(java.util.Locale.US, "%.1f kWh", item.optDouble("energyKwh"));
         String slot = compactDate(item.optString("slotStartUtc"));
-        String qr = item.optString("transactionCode").isEmpty() ? "QR pending approval" : "QR ready for dispatch";
+        String qr = "Approved".equals(status) && !item.optString("transactionCode").isEmpty() ? "QR ready for dispatch" : ("Pending".equals(status) ? "Waiting for approval" : "No QR for this booking");
         SpannableStringBuilder result = new SpannableStringBuilder();
         appendStyled(result, status, getColor(R.color.brand_primary), 1.08f, true);
         appendStyled(result, "\n" + node, getColor(R.color.text_primary), 1.0f, true);
@@ -805,6 +889,17 @@ public class DashboardActivity extends Activity {
         String name = nodeNames.get(id);
         if (name != null && !name.isEmpty()) return name;
         return "Grid node";
+    }
+
+    private String slotIdFor(JSONObject item) {
+        String nodeIdValue = item.optString("nodeId");
+        String startValue = item.optString("slotStartUtc");
+        try {
+            long dotnetTicks = parseServerInstant(startValue).getEpochSecond() * 10000000L + 621355968000000000L;
+            return nodeIdValue + ":" + dotnetTicks;
+        } catch (Exception ignored) {
+            return "";
+        }
     }
 
     private int statusBackground(String status) {
@@ -832,9 +927,38 @@ public class DashboardActivity extends Activity {
         }
     }
 
+    private String slotTimeRange(String startValue, String endValue) {
+        return compactTime(startValue) + " - " + compactTime(endValue);
+    }
+
+    private String compactTime(String value) {
+        if (value == null || value.isEmpty()) return "--:--";
+        try {
+            return parseServerInstant(value).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("HH:mm"));
+        } catch (Exception ignored) {
+            return value.replace("T", " ").replace("Z", " UTC");
+        }
+    }
+
     private String compactDate(String value) {
         if (value == null || value.isEmpty()) return "Not scheduled";
-        return value.replace("T", " ").replace("Z", " UTC");
+        try {
+            return parseServerInstant(value).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm"));
+        } catch (Exception ignored) {
+            return value.replace("T", " ").replace("Z", " UTC");
+        }
+    }
+
+    private Instant parseServerInstant(String value) {
+        try {
+            return Instant.parse(value);
+        } catch (Exception ignored) {
+        }
+        try {
+            return OffsetDateTime.parse(value).toInstant();
+        } catch (Exception ignored) {
+        }
+        return LocalDateTime.parse(value).atZone(ZoneId.of("UTC")).toInstant();
     }
 
     private void renderQr(String qrValue) {

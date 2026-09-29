@@ -17,27 +17,34 @@ import { PagePanel } from "../components/PagePanel.jsx";
 import { asArray, request } from "../lib/api.js";
 import { formatDate } from "../lib/format.js";
 
-function toDateTimeLocal(date) {
+function toDateInput(date) {
   const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-  return local.toISOString().slice(0, 16);
+  return local.toISOString().slice(0, 10);
 }
 
-function toIsoOrEmpty(value) {
-  return value ? new Date(value).toISOString() : "";
+function defaultBookingDate() {
+  const next = new Date();
+  next.setDate(next.getDate() + 1);
+  return toDateInput(next);
+}
+
+function dotnetTicks(value) {
+  const milliseconds = BigInt(new Date(value).getTime());
+  return (milliseconds * 10000n + 621355968000000000n).toString();
+}
+
+function slotIdFromReservation(reservation) {
+  if (!reservation?.nodeId || !reservation?.slotStartUtc) return "";
+  return `${reservation.nodeId}:${dotnetTicks(reservation.slotStartUtc)}`;
 }
 
 function createDefaultReservationForm() {
-  const start = new Date();
-  start.setDate(start.getDate() + 1);
-  start.setMinutes(0, 0, 0);
-  const end = new Date(start);
-  end.setHours(end.getHours() + 1);
   return {
     id: "",
     prosumerNic: "",
     nodeId: "",
-    slotStartLocal: toDateTimeLocal(start),
-    slotEndLocal: toDateTimeLocal(end),
+    bookingDate: defaultBookingDate(),
+    slotId: "",
     energyKwh: 5,
     status: "Approved",
   };
@@ -48,15 +55,42 @@ function reservationToForm(reservation) {
     id: reservation.id || "",
     prosumerNic: reservation.prosumerNic || "",
     nodeId: reservation.nodeId || "",
-    slotStartLocal: reservation.slotStartUtc
-      ? toDateTimeLocal(new Date(reservation.slotStartUtc))
-      : createDefaultReservationForm().slotStartLocal,
-    slotEndLocal: reservation.slotEndUtc
-      ? toDateTimeLocal(new Date(reservation.slotEndUtc))
-      : createDefaultReservationForm().slotEndLocal,
+    bookingDate: reservation.slotStartUtc
+      ? toDateInput(new Date(reservation.slotStartUtc))
+      : defaultBookingDate(),
+    slotId: slotIdFromReservation(reservation),
     energyKwh: reservation.energyKwh || 5,
     status: reservation.status || "Approved",
   };
+}
+
+function slotAvailable(slot) {
+  return Boolean(slot?.isAvailable) && Number(slot?.remainingSlots || 0) > 0;
+}
+
+function slotTime(value) {
+  if (!value) return "--:--";
+  return new Date(value).toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function slotLabel(slot, form) {
+  const isCurrent = Boolean(form.id && form.slotId && slot.slotId === form.slotId);
+  const available = slotAvailable(slot);
+  const booked = Number(slot.bookedSlots || 0);
+  const remaining = Number(slot.remainingSlots || 0);
+  const state = isCurrent
+    ? "Current booking"
+    : available
+      ? `Available - ${remaining} left${booked > 0 ? ` / ${booked} booked` : ""}`
+      : "Booked";
+  return `${slotTime(slot.startUtc)} - ${slotTime(slot.endUtc)} | ${state}`;
+}
+
+function canSelectSlot(slot, form) {
+  return slotAvailable(slot) || Boolean(form.id && form.slotId && slot.slotId === form.slotId);
 }
 
 export function Reservations() {
@@ -67,14 +101,18 @@ export function Reservations() {
     role === "0" ||
     role === "1";
   const [rows, setRows] = useState([]);
+  const [nodes, setNodes] = useState([]);
   const [query, setQuery] = useState("");
   const [qr, setQr] = useState("");
   const [message, setMessage] = useState("");
   const [form, setForm] = useState(createDefaultReservationForm());
-  const minDate = toDateTimeLocal(new Date());
-  const maxDate = toDateTimeLocal(
-    new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  const [slots, setSlots] = useState([]);
+  const [slotMessage, setSlotMessage] = useState(
+    "Select a grid node and date to view slots.",
   );
+  const minDate = toDateInput(new Date());
+  const maxDate = toDateInput(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
+
   const load = () =>
     request("/reservations")
       .then((data) => setRows(asArray(data)))
@@ -83,26 +121,95 @@ export function Reservations() {
         setMessage(err.message);
       });
 
+  const loadNodes = () =>
+    request("/nodes")
+      .then((data) => setNodes(asArray(data).filter((node) => node.isActive !== false)))
+      .catch(() => setNodes([]));
+
   useEffect(() => {
     load();
+    loadNodes();
   }, []);
+
+  useEffect(() => {
+    if (!form.nodeId || !form.bookingDate) {
+      setSlots([]);
+      setSlotMessage("Select a grid node and date to view slots.");
+      return;
+    }
+    loadSlots(form.nodeId, form.bookingDate, form.slotId);
+  }, [form.nodeId, form.bookingDate]);
+
+  async function loadSlots(nodeId = form.nodeId, bookingDate = form.bookingDate) {
+    if (!nodeId.trim() || !bookingDate) return;
+    setSlotMessage("Loading slots for selected date...");
+    try {
+      const data = await request(
+        `/reservations/nodes/${encodeURIComponent(nodeId.trim())}/available-slots?date=${bookingDate}`,
+      );
+      const nextSlots = asArray(data);
+      setSlots(nextSlots);
+      const firstAvailable = nextSlots.find((slot) => slotAvailable(slot));
+      setForm((current) => {
+        const selected = nextSlots.find((slot) => slot.slotId === current.slotId);
+        const keepSelected = selected && canSelectSlot(selected, current);
+        return {
+          ...current,
+          slotId: keepSelected ? current.slotId : firstAvailable?.slotId || "",
+        };
+      });
+      const availableCount = nextSlots.filter((slot) => slotAvailable(slot)).length;
+      setSlotMessage(
+        nextSlots.length
+          ? `${availableCount} available slot${availableCount === 1 ? "" : "s"}. Booked slots are shown but cannot be selected.`
+          : "No schedule slots for this node on the selected date.",
+      );
+    } catch (err) {
+      setSlots([]);
+      setSlotMessage(err.message);
+    }
+  }
 
   async function save(e) {
     e.preventDefault();
-    const payload = {
+    const selectedSlot = slots.find((slot) => slot.slotId === form.slotId);
+    if (!selectedSlot) {
+      setMessage("Select a date and time slot first.");
+      return;
+    }
+    if (!canSelectSlot(selectedSlot, form)) {
+      setMessage("That slot is already booked. Select an available slot.");
+      return;
+    }
+
+    const basePayload = {
       prosumerNic: form.prosumerNic.trim(),
       nodeId: form.nodeId.trim(),
-      slotStartUtc: toIsoOrEmpty(form.slotStartLocal),
-      slotEndUtc: toIsoOrEmpty(form.slotEndLocal),
       energyKwh: Number(form.energyKwh),
-      status: form.status,
     };
+    const requestPayload = form.id
+      ? {
+          ...basePayload,
+          slotStartUtc: selectedSlot.startUtc,
+          slotEndUtc: selectedSlot.endUtc,
+          status: form.status,
+        }
+      : {
+          ...basePayload,
+          slotId: form.slotId,
+        };
     const result = await request(
-      form.id ? `/reservations/${form.id}` : "/reservations",
-      { method: form.id ? "PUT" : "POST", body: JSON.stringify(payload) },
+      form.id ? `/reservations/${form.id}` : "/reservations/from-slot",
+      {
+        method: form.id ? "PUT" : "POST",
+        body: JSON.stringify(requestPayload),
+      },
     );
     setMessage(result.message || "");
-    if (result.success) setForm(createDefaultReservationForm());
+    if (result.success) {
+      setForm(createDefaultReservationForm());
+      setSlots([]);
+    }
     load();
   }
 
@@ -123,14 +230,14 @@ export function Reservations() {
   }
 
   function editReservation(reservation) {
-    setForm(reservationToForm(reservation));
-    setMessage(
-      "Editing reservation. Updates require at least 12 hours notice.",
-    );
+    const next = reservationToForm(reservation);
+    setForm(next);
+    setMessage("Editing reservation. Pick a date and available slot; updates require at least 12 hours notice.");
   }
 
   function resetForm() {
     setForm(createDefaultReservationForm());
+    setSlots([]);
     setMessage("");
   }
 
@@ -169,32 +276,67 @@ export function Reservations() {
             onChange={(e) => setForm({ ...form, prosumerNic: e.target.value })}
           />
         </Field>
-        <Field label="Node ID">
-          <input
-            value={form.nodeId}
-            onChange={(e) => setForm({ ...form, nodeId: e.target.value })}
-          />
+        <Field label="Grid Node">
+          {nodes.length > 0 ? (
+            <select
+              value={form.nodeId}
+              onChange={(e) => setForm({ ...form, nodeId: e.target.value, slotId: "" })}
+            >
+              <option value="">Select active grid node</option>
+              {nodes.map((node) => (
+                <option key={node.id} value={node.id}>
+                  {node.name || "Grid node"} - {node.locationName || "Location not set"}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              value={form.nodeId}
+              placeholder="Node ID"
+              onChange={(e) => setForm({ ...form, nodeId: e.target.value, slotId: "" })}
+            />
+          )}
         </Field>
-        <Field label="Start">
+        <Field label="Booking Date">
           <input
-            type="datetime-local"
+            type="date"
             min={minDate}
             max={maxDate}
-            value={form.slotStartLocal}
-            onChange={(e) =>
-              setForm({ ...form, slotStartLocal: e.target.value })
-            }
+            value={form.bookingDate}
+            onChange={(e) => setForm({ ...form, bookingDate: e.target.value, slotId: "" })}
           />
         </Field>
-        <Field label="End">
-          <input
-            type="datetime-local"
-            min={minDate}
-            max={maxDate}
-            value={form.slotEndLocal}
-            onChange={(e) => setForm({ ...form, slotEndLocal: e.target.value })}
-          />
-        </Field>
+        <div className="grid gap-1.5 text-xs font-semibold text-slate-500 md:col-span-2">
+          <span>Time Slot</span>
+          <div className="grid gap-2 rounded-md border border-[#dbe5df] bg-white p-3">
+            <div className="flex items-center gap-2 max-sm:flex-col max-sm:items-stretch">
+              <select
+                value={form.slotId || ""}
+                onChange={(e) => setForm({ ...form, slotId: e.target.value })}
+                disabled={!slots.length}
+              >
+                <option value="">Select a slot</option>
+                {slots.map((slot) => (
+                  <option
+                    key={slot.slotId}
+                    value={slot.slotId}
+                    disabled={!canSelectSlot(slot, form)}
+                  >
+                    {slotLabel(slot, form)}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                className="inline-flex min-h-11 items-center justify-center rounded-md border border-[#00483d] bg-white px-3.5 text-sm font-semibold text-[#00483d]"
+                onClick={() => loadSlots()}
+              >
+                Refresh slots
+              </button>
+            </div>
+            <span className="text-xs font-semibold text-[#66736e]">{slotMessage}</span>
+          </div>
+        </div>
         <Field label="Energy kWh">
           <input
             type="number"
@@ -204,6 +346,19 @@ export function Reservations() {
             }
           />
         </Field>
+        {form.id && (
+          <Field label="Status">
+            <select
+              value={form.status}
+              onChange={(e) => setForm({ ...form, status: e.target.value })}
+            >
+              <option>Pending</option>
+              <option>Approved</option>
+              <option>Cancelled</option>
+              <option>Completed</option>
+            </select>
+          </Field>
+        )}
         {form.id && (
           <button
             type="button"
