@@ -1,7 +1,6 @@
 /*
- * SE4040 Enterprise Application Development - Assignment 1
- * Smart Solar Microgrid Trading System
- * AI-assisted implementation; review and explain before submission.
+ * File: ProsumersController.cs
+ * Exposes API endpoints for prosumer registration, profile updates, and account status actions.
  */
 using Microsoft.AspNetCore.Mvc;
 using SmartSolar.Api.Models;
@@ -17,6 +16,7 @@ public class ProsumersController : ControllerBase
     private readonly UserService _users;
     private readonly AuthService _auth;
 
+    // Store the services required for prosumer account endpoints.
     public ProsumersController(ProsumerService prosumers, UserService users, AuthService auth)
     {
         _prosumers = prosumers;
@@ -24,6 +24,7 @@ public class ProsumersController : ControllerBase
         _auth = auth;
     }
 
+    // Return all prosumer accounts visible to web operators.
     [HttpGet]
     public async Task<ActionResult<List<Prosumer>>> GetAll()
     {
@@ -32,6 +33,7 @@ public class ProsumersController : ControllerBase
         return Ok(await _prosumers.GetAllAsync());
     }
 
+    // Return one prosumer profile after role or ownership checks.
     [HttpGet("{nic}")]
     public async Task<ActionResult<Prosumer>> Get(string nic)
     {
@@ -42,7 +44,7 @@ public class ProsumersController : ControllerBase
         return prosumer is null ? NotFound() : Ok(prosumer);
     }
 
-    // Mobile self-registration for solar prosumers. Backoffice-only admin updates stay on PUT /{nic}.
+    // Register a mobile prosumer profile and matching login account.
     [HttpPost("register")]
     public async Task<ApiResult<Prosumer>> Register(ProsumerRegisterRequest request)
     {
@@ -86,6 +88,7 @@ public class ProsumersController : ControllerBase
     }
 
 
+    // Allow an authenticated prosumer to update their own profile.
     [HttpPut("mobile/{nic}")]
     public async Task<ApiResult<Prosumer>> MobileUpdate(string nic, Prosumer prosumer)
     {
@@ -99,7 +102,7 @@ public class ProsumersController : ControllerBase
         return new(true, "Prosumer profile updated.", prosumer);
     }
 
-    // Creates or updates a prosumer profile using NIC as the primary key.
+    // Allow Backoffice users to create or update a prosumer profile.
     [HttpPut("{nic}")]
     public async Task<ApiResult<Prosumer>> Upsert(string nic, Prosumer prosumer)
     {
@@ -110,6 +113,7 @@ public class ProsumersController : ControllerBase
         return new(true, "Prosumer saved.", prosumer);
     }
 
+    // Allow a prosumer to submit a deactivation request.
     [HttpPost("{nic}/request-deactivation")]
     public async Task<ApiResult<bool>> RequestDeactivation(string nic)
     {
@@ -119,6 +123,7 @@ public class ProsumersController : ControllerBase
         return new(true, "Deactivation request submitted.", true);
     }
 
+    // Reactivate a prosumer account from Backoffice.
     [HttpPost("{nic}/activate")]
     public async Task<ApiResult<bool>> Activate(string nic)
     {
@@ -128,6 +133,7 @@ public class ProsumersController : ControllerBase
         return new(true, "Prosumer activated.", true);
     }
 
+    // Deactivate a prosumer account from Backoffice.
     [HttpPost("{nic}/deactivate")]
     public async Task<ApiResult<bool>> Deactivate(string nic)
     {

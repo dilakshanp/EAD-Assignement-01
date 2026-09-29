@@ -1,7 +1,6 @@
 /*
- * SE4040 Enterprise Application Development - Assignment 1
- * Smart Solar Microgrid Trading System
- * AI-assisted implementation; review and explain before submission.
+ * File: MongoContext.cs
+ * Creates MongoDB collection handles used by the service layer.
  */
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
@@ -17,6 +16,7 @@ public class MongoContext
     public IMongoCollection<MicrogridNode> Nodes { get; }
     public IMongoCollection<EnergyReservation> Reservations { get; }
 
+    // Create the MongoDB client and resolve each application collection.
     public MongoContext(IOptions<MongoDbSettings> options)
     {
         var client = new MongoClient(options.Value.ConnectionString);

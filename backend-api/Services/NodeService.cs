@@ -1,7 +1,6 @@
 /*
- * SE4040 Enterprise Application Development - Assignment 1
- * Smart Solar Microgrid Trading System
- * AI-assisted implementation; review and explain before submission.
+ * File: NodeService.cs
+ * Contains business logic for microgrid node management.
  */
 using MongoDB.Driver;
 using SmartSolar.Api.Models;
@@ -11,11 +10,24 @@ namespace SmartSolar.Api.Services;
 public class NodeService
 {
     private readonly MongoContext _db;
-    public NodeService(MongoContext db) => _db = db;
+    // Store the MongoDB context used for node operations.
+    public NodeService(MongoContext db)
+    {
+        _db = db;
+    }
 
-    public Task<List<MicrogridNode>> GetAllAsync() => _db.Nodes.Find(_ => true).ToListAsync();
-    public async Task<MicrogridNode?> GetAsync(string id) => await _db.Nodes.Find(x => x.Id == id).FirstOrDefaultAsync();
+    // Load all records from the related MongoDB collection.
+    public Task<List<MicrogridNode>> GetAllAsync()
+    {
+        return _db.Nodes.Find(_ => true).ToListAsync();
+    }
+    // Load one record by its identifier.
+    public async Task<MicrogridNode?> GetAsync(string id)
+    {
+        return await _db.Nodes.Find(x => x.Id == id).FirstOrDefaultAsync();
+    }
 
+    // Check the node details before saving them.
     public ApiResult<bool> Validate(MicrogridNode node)
     {
         if (string.IsNullOrWhiteSpace(node.Name)) return new(false, "Node name is required.", false);
@@ -28,9 +40,18 @@ public class NodeService
         return new(true, "Node is valid.", true);
     }
 
-    public Task CreateAsync(MicrogridNode node) => _db.Nodes.InsertOneAsync(node);
-    public Task UpdateAsync(string id, MicrogridNode node) => _db.Nodes.ReplaceOneAsync(x => x.Id == id, node);
+    // Insert a new record into the related MongoDB collection.
+    public Task CreateAsync(MicrogridNode node)
+    {
+        return _db.Nodes.InsertOneAsync(node);
+    }
+    // Replace an existing record in the related MongoDB collection.
+    public Task UpdateAsync(string id, MicrogridNode node)
+    {
+        return _db.Nodes.ReplaceOneAsync(x => x.Id == id, node);
+    }
 
+    // Update the operator-maintained battery slot availability for a node.
     public async Task<ApiResult<MicrogridNode>> UpdateBatterySlotsAsync(string id, int batteryStorageSlots)
     {
         if (batteryStorageSlots < 0) return new(false, "Battery slots cannot be negative.", null);
@@ -40,6 +61,7 @@ public class NodeService
         return new(true, "Battery slot availability updated.", node);
     }
 
+    // Deactivate a node only when it has no open reservations.
     public async Task<ApiResult<bool>> DeactivateAsync(string id)
     {
         var node = await GetAsync(id);
@@ -52,6 +74,7 @@ public class NodeService
         return new(true, "Node deactivated.", true);
     }
 
+    // Reactivate an existing microgrid node.
     public async Task<ApiResult<bool>> ActivateAsync(string id)
     {
         var node = await GetAsync(id);

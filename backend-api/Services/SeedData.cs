@@ -1,7 +1,6 @@
 /*
- * SE4040 Enterprise Application Development - Assignment 1
- * Smart Solar Microgrid Trading System
- * AI-assisted implementation; review and explain before submission.
+ * File: SeedData.cs
+ * Adds default users and sample node data when the database is empty.
  */
 using SmartSolar.Api.Models;
 
@@ -9,6 +8,7 @@ namespace SmartSolar.Api.Services;
 
 public static class SeedData
 {
+    // Create baseline users and sample node data if they do not already exist.
     public static async Task EnsureAsync(IServiceProvider services)
     {
         var users = services.GetRequiredService<UserService>();

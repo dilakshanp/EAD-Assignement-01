@@ -1,7 +1,6 @@
 /*
- * SE4040 Enterprise Application Development - Assignment 1
- * Smart Solar Microgrid Trading System
- * AI-assisted implementation; review and explain before submission.
+ * File: EnergyReservation.cs
+ * Defines the energy reservation document stored in MongoDB.
  */
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;

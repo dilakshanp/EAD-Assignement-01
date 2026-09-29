@@ -1,7 +1,6 @@
 /*
- * SE4040 Enterprise Application Development - Assignment 1
- * Smart Solar Microgrid Trading System
- * AI-assisted implementation; review and explain before submission.
+ * File: NodesController.cs
+ * Exposes API endpoints for microgrid nodes, schedules, and battery slot availability.
  */
 using Microsoft.AspNetCore.Mvc;
 using SmartSolar.Api.Models;
@@ -14,8 +13,13 @@ namespace SmartSolar.Api.Controllers;
 public class NodesController : ControllerBase
 {
     private readonly NodeService _nodes;
-    public NodesController(NodeService nodes) => _nodes = nodes;
+    // Store the node service used by node endpoints.
+    public NodesController(NodeService nodes)
+    {
+        _nodes = nodes;
+    }
 
+    // Return all microgrid nodes visible to authorized clients.
     [HttpGet]
     public async Task<ActionResult<List<MicrogridNode>>> GetAll()
     {
@@ -24,6 +28,7 @@ public class NodesController : ControllerBase
         return Ok(await _nodes.GetAllAsync());
     }
 
+    // Return one microgrid node after access checks.
     [HttpGet("{id}")]
     public async Task<ActionResult<MicrogridNode>> Get(string id)
     {
@@ -33,6 +38,7 @@ public class NodesController : ControllerBase
         return node is null ? NotFound() : Ok(node);
     }
 
+    // Create a microgrid node after Backoffice validation.
     [HttpPost]
     public async Task<ApiResult<MicrogridNode>> Create(MicrogridNode node)
     {
@@ -44,6 +50,7 @@ public class NodesController : ControllerBase
         return new(true, "Microgrid node created.", node);
     }
 
+    // Update microgrid node details and schedules after Backoffice validation.
     [HttpPut("{id}")]
     public async Task<ApiResult<MicrogridNode>> Update(string id, MicrogridNode node)
     {
@@ -56,6 +63,7 @@ public class NodesController : ControllerBase
         return new(true, "Microgrid node updated.", node);
     }
 
+    // Allow operators to update only battery slot availability.
     [HttpPatch("{id}/battery-slots")]
     public Task<ApiResult<MicrogridNode>> UpdateBatterySlots(string id, BatterySlotsRequest request)
     {
@@ -64,6 +72,7 @@ public class NodesController : ControllerBase
         return _nodes.UpdateBatterySlotsAsync(id, request.BatteryStorageSlots);
     }
 
+    // Deactivate a node after verifying there are no active reservations.
     [HttpPost("{id}/deactivate")]
     public Task<ApiResult<bool>> Deactivate(string id)
     {
@@ -72,6 +81,7 @@ public class NodesController : ControllerBase
         return _nodes.DeactivateAsync(id);
     }
 
+    // Reactivate an existing microgrid node after Backoffice validation.
     [HttpPost("{id}/activate")]
     public Task<ApiResult<bool>> Activate(string id)
     {

@@ -1,7 +1,6 @@
 /*
- * SE4040 Enterprise Application Development - Assignment 1
- * Smart Solar Microgrid Trading System
- * AI-assisted implementation; review and explain before submission.
+ * File: Program.cs
+ * Configures application services, middleware, API routing, and startup seed data.
  */
 using SmartSolar.Api.Services;
 using SmartSolar.Api.Settings;

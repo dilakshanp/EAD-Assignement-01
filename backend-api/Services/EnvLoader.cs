@@ -1,12 +1,12 @@
 /*
- * SE4040 Enterprise Application Development - Assignment 1
- * Smart Solar Microgrid Trading System
- * AI-assisted implementation; review and explain before submission.
+ * File: EnvLoader.cs
+ * Loads local environment variables for development configuration.
  */
 namespace SmartSolar.Api.Services;
 
 public static class EnvLoader
 {
+    // Read development environment variables from the local .env file.
     public static void Load()
     {
         var path = Path.Combine(Directory.GetCurrentDirectory(), ".env");

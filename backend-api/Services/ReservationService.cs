@@ -1,7 +1,6 @@
 /*
- * SE4040 Enterprise Application Development - Assignment 1
- * Smart Solar Microgrid Trading System
- * AI-assisted implementation; review and explain before submission.
+ * File: ReservationService.cs
+ * Contains business rules for reservation slots, QR completion, and booking validation.
  */
 using MongoDB.Driver;
 using SmartSolar.Api.Models;
@@ -12,12 +11,29 @@ namespace SmartSolar.Api.Services;
 public class ReservationService
 {
     private readonly MongoContext _db;
-    public ReservationService(MongoContext db) => _db = db;
+    // Store the MongoDB context used for reservation operations.
+    public ReservationService(MongoContext db)
+    {
+        _db = db;
+    }
 
-    public Task<List<EnergyReservation>> GetAllAsync() => _db.Reservations.Find(_ => true).ToListAsync();
-    public Task<List<EnergyReservation>> GetByProsumerAsync(string nic) => _db.Reservations.Find(x => x.ProsumerNic == nic).ToListAsync();
-    public async Task<EnergyReservation?> GetAsync(string id) => await _db.Reservations.Find(x => x.Id == id).FirstOrDefaultAsync();
+    // Load all records from the related MongoDB collection.
+    public Task<List<EnergyReservation>> GetAllAsync()
+    {
+        return _db.Reservations.Find(_ => true).ToListAsync();
+    }
+    // Load reservations owned by a specific prosumer.
+    public Task<List<EnergyReservation>> GetByProsumerAsync(string nic)
+    {
+        return _db.Reservations.Find(x => x.ProsumerNic == nic).ToListAsync();
+    }
+    // Load one record by its identifier.
+    public async Task<EnergyReservation?> GetAsync(string id)
+    {
+        return await _db.Reservations.Find(x => x.Id == id).FirstOrDefaultAsync();
+    }
 
+    // Calculate fixed one-hour slots and their remaining capacity for a node.
     public async Task<List<AvailableSlot>> GetAvailableSlotsAsync(string nodeId, DateTime? requestedDate = null)
     {
         var node = await _db.Nodes.Find(x => x.Id == nodeId && x.IsActive).FirstOrDefaultAsync();
@@ -52,6 +68,7 @@ public class ReservationService
         return slots.OrderBy(x => x.StartUtc).ToList();
     }
 
+    // Convert a selected slot into a reservation request.
     public async Task<ApiResult<EnergyReservation>> CreateFromSlotAsync(string nic, string nodeId, string slotId, double energyKwh, bool approveImmediately)
     {
         if (!TryReadSlotId(slotId, nodeId, out var start)) return new(false, "The selected slot is invalid.", null);
@@ -59,12 +76,14 @@ public class ReservationService
         return await CreateAsync(reservation, approveImmediately);
     }
 
+    // Convert a selected slot into an updated reservation request.
     public async Task<ApiResult<EnergyReservation>> UpdateFromSlotAsync(string id, MobileReservationRequest request, string? ownerNic)
     {
         if (!TryReadSlotId(request.SlotId, request.NodeId, out var start)) return new(false, "The selected slot is invalid.", null);
         return await UpdateAsync(id, new EnergyReservation { ProsumerNic = request.ProsumerNic, NodeId = request.NodeId, SlotStartUtc = start, SlotEndUtc = start.AddHours(1), EnergyKwh = request.EnergyKwh }, ownerNic);
     }
 
+    // Insert a new record into the related MongoDB collection.
     public async Task<ApiResult<EnergyReservation>> CreateAsync(EnergyReservation reservation, bool approveImmediately = true)
     {
         var node = await _db.Nodes.Find(x => x.Id == reservation.NodeId && x.IsActive).FirstOrDefaultAsync();
@@ -80,6 +99,7 @@ public class ReservationService
         return new(true, approveImmediately ? "Reservation created and approved." : "Reservation submitted for approval.", reservation);
     }
 
+    // Approve a pending reservation and issue its QR transaction code.
     public async Task<ApiResult<EnergyReservation>> ApproveAsync(string id)
     {
         var reservation = await GetAsync(id);
@@ -93,6 +113,7 @@ public class ReservationService
         return new(true, "Reservation approved and QR transaction issued.", reservation);
     }
 
+    // Replace an existing record in the related MongoDB collection.
     public async Task<ApiResult<EnergyReservation>> UpdateAsync(string id, EnergyReservation update, string? ownerNic = null)
     {
         var existing = await GetAsync(id);
@@ -118,6 +139,7 @@ public class ReservationService
         return new(true, "Reservation updated.", update);
     }
 
+    // Cancel an open reservation after validating ownership and notice rules.
     public async Task<ApiResult<bool>> CancelAsync(string id, string? ownerNic = null)
     {
         var existing = await GetAsync(id);
@@ -132,6 +154,7 @@ public class ReservationService
         return new(true, "Reservation cancelled.", true);
     }
 
+    // Finalize an approved reservation using its QR transaction code.
     public async Task<ApiResult<EnergyReservation>> CompleteByQrAsync(string transactionCode)
     {
         var reservation = await _db.Reservations.Find(x => x.TransactionCode == transactionCode).FirstOrDefaultAsync();
@@ -146,6 +169,7 @@ public class ReservationService
         return new(true, "Energy transfer finalized.", reservation);
     }
 
+    // Apply booking business rules before a reservation is saved.
     private async Task<ApiResult<bool>> ValidateBookingAsync(EnergyReservation reservation, MicrogridNode node, string? ignoredId, bool requireNotice)
     {
         var window = ValidateReservationWindow(reservation.SlotStartUtc, reservation.SlotEndUtc, requireNotice);
@@ -169,6 +193,7 @@ public class ReservationService
         return new(true, "Reservation is valid.", true);
     }
 
+    // Extract the reservation start time encoded in the selected slot id.
     private static bool TryReadSlotId(string slotId, string nodeId, out DateTime start)
     {
         start = default;
@@ -177,6 +202,7 @@ public class ReservationService
             && (start = new DateTime(ticks, DateTimeKind.Utc)) != default;
     }
 
+    // Enforce the 7-day booking window and 12-hour change notice rule.
     private static ApiResult<bool> ValidateReservationWindow(DateTime slotStartUtc, DateTime slotEndUtc, bool requireNotice)
     {
         var now = DateTime.UtcNow;

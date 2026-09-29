@@ -1,7 +1,6 @@
 /*
- * SE4040 Enterprise Application Development - Assignment 1
- * Smart Solar Microgrid Trading System
- * AI-assisted implementation; review and explain before submission.
+ * File: AuthController.cs
+ * Exposes API endpoints for login and role-based user management.
  */
 using Microsoft.AspNetCore.Mvc;
 using SmartSolar.Api.Models;
@@ -16,6 +15,7 @@ public class AuthController : ControllerBase
     private readonly AuthService _auth;
     private readonly UserService _users;
     private readonly TokenService _tokens;
+    // Store authentication, user, and token services for auth endpoints.
     public AuthController(AuthService auth, UserService users, TokenService tokens)
     {
         _auth = auth;
@@ -23,7 +23,7 @@ public class AuthController : ControllerBase
         _tokens = tokens;
     }
 
-    // Authenticates a user and returns role information for client routing.
+    // Authenticate a user and return the token used by clients.
     [HttpPost("login")]
     public async Task<ActionResult<ApiResult<LoginResponse>>> Login(LoginRequest request)
     {
@@ -33,7 +33,7 @@ public class AuthController : ControllerBase
         return Ok(new ApiResult<LoginResponse>(true, result.Message, new LoginResponse(_tokens.CreateToken(result.Data), result.Data)));
     }
 
-    // Creates a web or operator user account.
+    // Create a Backoffice or Grid Operator web user account.
     [HttpPost("users")]
     public async Task<ActionResult<ApiResult<AppUser>>> CreateUser(CreateUserRequest request)
     {
@@ -57,6 +57,7 @@ public class AuthController : ControllerBase
         return Ok(new ApiResult<AppUser>(true, "User created.", user));
     }
 
+    // Return the list of web application user accounts.
     [HttpGet("users")]
     public async Task<ActionResult<List<AppUser>>> Users()
     {
@@ -65,6 +66,7 @@ public class AuthController : ControllerBase
         return await _users.GetAllAsync();
     }
 
+    // Update an existing web user account and optional password.
     [HttpPut("users/{id}")]
     public async Task<ActionResult<ApiResult<AppUser>>> UpdateUser(string id, UpdateUserRequest request)
     {
@@ -95,6 +97,7 @@ public class AuthController : ControllerBase
         return Ok(new ApiResult<AppUser>(true, "User updated.", user));
     }
 
+    // Switch a web user account back to active status.
     [HttpPost("users/{id}/activate")]
     public async Task<ActionResult<ApiResult<bool>>> ActivateUser(string id)
     {
@@ -106,6 +109,7 @@ public class AuthController : ControllerBase
         return Ok(new ApiResult<bool>(true, "User activated.", true));
     }
 
+    // Switch a web user account to deactivated status.
     [HttpPost("users/{id}/deactivate")]
     public async Task<ActionResult<ApiResult<bool>>> DeactivateUser(string id)
     {
@@ -117,6 +121,7 @@ public class AuthController : ControllerBase
         return Ok(new ApiResult<bool>(true, "User deactivated.", true));
     }
 
+    // Remove a web user account from the database.
     [HttpDelete("users/{id}")]
     public async Task<ActionResult<ApiResult<bool>>> DeleteUser(string id)
     {

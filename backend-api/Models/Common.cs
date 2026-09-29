@@ -1,7 +1,6 @@
 /*
- * SE4040 Enterprise Application Development - Assignment 1
- * Smart Solar Microgrid Trading System
- * AI-assisted implementation; review and explain before submission.
+ * File: Common.cs
+ * Defines shared enums, API result contracts, and reservation request records.
  */
 namespace SmartSolar.Api.Models;
 

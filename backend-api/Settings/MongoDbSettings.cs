@@ -1,7 +1,6 @@
 /*
- * SE4040 Enterprise Application Development - Assignment 1
- * Smart Solar Microgrid Trading System
- * AI-assisted implementation; review and explain before submission.
+ * File: MongoDbSettings.cs
+ * Defines MongoDB configuration values bound from application settings or environment variables.
  */
 namespace SmartSolar.Api.Settings;
 

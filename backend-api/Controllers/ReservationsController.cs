@@ -1,7 +1,6 @@
 /*
- * SE4040 Enterprise Application Development - Assignment 1
- * Smart Solar Microgrid Trading System
- * AI-assisted implementation; review and explain before submission.
+ * File: ReservationsController.cs
+ * Exposes API endpoints for reservation booking, approval, cancellation, and QR completion.
  */
 using Microsoft.AspNetCore.Mvc;
 using SmartSolar.Api.Models;
@@ -14,8 +13,13 @@ namespace SmartSolar.Api.Controllers;
 public class ReservationsController : ControllerBase
 {
     private readonly ReservationService _reservations;
-    public ReservationsController(ReservationService reservations) => _reservations = reservations;
+    // Store the reservation service used by reservation endpoints.
+    public ReservationsController(ReservationService reservations)
+    {
+        _reservations = reservations;
+    }
 
+    // Return reservations visible to Backoffice and Grid Operator users.
     [HttpGet]
     public async Task<ActionResult<List<EnergyReservation>>> GetAll()
     {
@@ -24,6 +28,7 @@ public class ReservationsController : ControllerBase
         return Ok(await _reservations.GetAllAsync());
     }
 
+    // Return reservations for a specific prosumer after access checks.
     [HttpGet("prosumer/{nic}")]
     public async Task<ActionResult<List<EnergyReservation>>> GetByProsumer(string nic)
     {
@@ -33,6 +38,7 @@ public class ReservationsController : ControllerBase
         return Ok(await _reservations.GetByProsumerAsync(nic));
     }
 
+    // Return available fixed slots for a selected node and date.
     [HttpGet("nodes/{nodeId}/available-slots")]
     public async Task<ActionResult<List<AvailableSlot>>> AvailableSlots(string nodeId, DateTime? date)
     {
@@ -40,6 +46,7 @@ public class ReservationsController : ControllerBase
         return Ok(await _reservations.GetAvailableSlotsAsync(nodeId, date));
     }
 
+    // Create a web-managed reservation after role validation.
     [HttpPost]
     public Task<ApiResult<EnergyReservation>> Create(EnergyReservation reservation)
     {
@@ -48,6 +55,7 @@ public class ReservationsController : ControllerBase
         return _reservations.CreateAsync(reservation);
     }
 
+    // Create a web-managed reservation from a fixed slot selection.
     [HttpPost("from-slot")]
     public Task<ApiResult<EnergyReservation>> CreateFromSlot(ReservationSlotRequest request)
     {
@@ -56,6 +64,7 @@ public class ReservationsController : ControllerBase
         return _reservations.CreateFromSlotAsync(request.ProsumerNic, request.NodeId, request.SlotId, request.EnergyKwh, true);
     }
 
+    // Update an existing reservation after role validation.
     [HttpPut("{id}")]
     public Task<ApiResult<EnergyReservation>> Update(string id, EnergyReservation reservation)
     {
@@ -64,6 +73,7 @@ public class ReservationsController : ControllerBase
         return _reservations.UpdateAsync(id, reservation);
     }
 
+    // Cancel a web-managed reservation after role validation.
     [HttpPost("{id}/cancel")]
     public Task<ApiResult<bool>> Cancel(string id)
     {
@@ -73,6 +83,7 @@ public class ReservationsController : ControllerBase
     }
 
 
+    // Allow an authenticated prosumer to create their own booking request.
     [HttpPost("mobile")]
     public Task<ApiResult<EnergyReservation>> MobileCreate(MobileReservationRequest request)
     {
@@ -81,6 +92,7 @@ public class ReservationsController : ControllerBase
         return _reservations.CreateFromSlotAsync(request.ProsumerNic, request.NodeId, request.SlotId, request.EnergyKwh, false);
     }
 
+    // Allow an authenticated prosumer to update their own booking request.
     [HttpPut("mobile/{id}")]
     public async Task<ApiResult<EnergyReservation>> MobileUpdate(string id, MobileReservationRequest request)
     {
@@ -89,6 +101,7 @@ public class ReservationsController : ControllerBase
         return await _reservations.UpdateFromSlotAsync(id, request, AccessControl.ProsumerNic(Request));
     }
 
+    // Allow an authenticated prosumer to cancel their own booking request.
     [HttpPost("mobile/{id}/cancel")]
     public async Task<ApiResult<bool>> MobileCancel(string id)
     {
@@ -97,6 +110,7 @@ public class ReservationsController : ControllerBase
         return await _reservations.CancelAsync(id, AccessControl.ProsumerNic(Request));
     }
 
+    // Approve a pending reservation from the operator workflow.
     [HttpPost("{id}/approve")]
     public Task<ApiResult<EnergyReservation>> Approve(string id)
     {
@@ -105,6 +119,7 @@ public class ReservationsController : ControllerBase
         return _reservations.ApproveAsync(id);
     }
 
+    // Complete an approved transfer after QR verification.
     [HttpPost("complete-by-qr")]
     public Task<ApiResult<EnergyReservation>> CompleteByQr(QrCompleteRequest request)
     {
