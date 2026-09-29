@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="brand_deep">#00533F</color>
-    <color name="brand_mid">#00754F</color>
-    <color name="brand_dark">#003A2C</color>
-    <color name="brand_darkest">#061410</color>
-    <color name="brand_lime">#DDFD53</color>
-    <color name="brand_surface">#F5F8F6</color>
+    <color name="brand_deep">#087F73</color>
+    <color name="brand_mid">#0B9A8A</color>
+    <color name="brand_dark">#102A2B</color>
+    <color name="brand_darkest">#081B1C</color>
+    <color name="brand_lime">#F2B84B</color>
+    <color name="brand_surface">#F4F7F3</color>
     <color name="brand_card">#FFFFFF</color>
-    <color name="brand_text">#092C23</color>
-    <color name="brand_muted">#60756D</color>
-    <color name="brand_line">#DDE8E2</color>
-    <color name="surface_background">#F5F8F6</color>
+    <color name="brand_text">#102A2B</color>
+    <color name="brand_muted">#657778</color>
+    <color name="brand_line">#DBE5DF</color>
+    <color name="surface_background">#F4F7F3</color>
     <color name="surface_card">#FFFFFF</color>
     <color name="surface_command">#FFFFFF</color>
-    <color name="surface_field">#FAFCFB</color>
-    <color name="surface_tint_green">#EDF8F2</color>
-    <color name="brand_primary">#00533F</color>
-    <color name="brand_primary_dark">#003A2C</color>
-    <color name="text_primary">#092C23</color>
-    <color name="text_secondary">#60756D</color>
-    <color name="hairline">#DDE8E2</color>
+    <color name="surface_field">#FBFDFC</color>
+    <color name="surface_tint_green">#E4F3ED</color>
+    <color name="brand_primary">#087F73</color>
+    <color name="brand_primary_dark">#075C58</color>
+    <color name="text_primary">#102A2B</color>
+    <color name="text_secondary">#657778</color>
+    <color name="hairline">#DBE5DF</color>
     <color name="error">#B42318</color>
 </resources>

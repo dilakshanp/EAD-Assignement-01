@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Activity, BatteryCharging, CheckCircle2, MapPin, Zap } from "lucide-react";
+import {
+  Activity,
+  BatteryCharging,
+  CheckCircle2,
+  MapPin,
+  Zap,
+} from "lucide-react";
 import { Badge } from "../components/Badge.jsx";
 import { DataTable } from "../components/DataTable.jsx";
 import { Metric } from "../components/Metric.jsx";
@@ -11,44 +17,97 @@ export function Dashboard() {
   const [nodes, setNodes] = useState([]);
 
   useEffect(() => {
-    request("/reservations").then((data) => setReservations(asArray(data))).catch(() => setReservations([]));
-    request("/nodes").then((data) => setNodes(asArray(data))).catch(() => setNodes([]));
+    request("/reservations")
+      .then((data) => setReservations(asArray(data)))
+      .catch(() => setReservations([]));
+    request("/nodes")
+      .then((data) => setNodes(asArray(data)))
+      .catch(() => setNodes([]));
   }, []);
 
-  const approved = reservations.filter((x) => x.status === "Approved" || x.status === 1).length;
-  const pending = reservations.filter((x) => x.status === "Pending" || x.status === 0).length;
-  const completed = reservations.filter((x) => x.status === "Completed" || x.status === 3).length;
+  const approved = reservations.filter(
+    (x) => x.status === "Approved" || x.status === 1,
+  ).length;
+  const pending = reservations.filter(
+    (x) => x.status === "Pending" || x.status === 0,
+  ).length;
+  const completed = reservations.filter(
+    (x) => x.status === "Completed" || x.status === 3,
+  ).length;
 
   return (
-    <div className="grid gap-5 p-4 md:p-7">
-      <section className="flex min-h-36 items-center justify-between gap-5 rounded-lg border border-emerald-800 bg-emerald-700 p-6 text-white max-sm:flex-col max-sm:items-start">
+    <div className="grid gap-6 p-4 md:p-8">
+      <section className="relative flex min-h-48 items-end justify-between gap-5 overflow-hidden rounded-[1.75rem] bg-[#087f73] p-7 text-white shadow-xl shadow-[#087f73]/15 max-sm:flex-col max-sm:items-start">
+        <div className="absolute -right-16 -top-32 size-96 rounded-full border-[55px] border-white/10" />
         <div>
-          <p className="text-xs font-bold uppercase text-emerald-100">Live Operations</p>
-          <h2 className="mt-1 text-3xl font-bold">Microgrid trading overview</h2>
+          <p className="eyebrow !text-[#f2b84b]">Live operations</p>
+          <h2 className="relative mt-2 text-4xl font-bold tracking-tight">
+            Microgrid trading overview
+          </h2>
+          <p className="relative mt-2 max-w-lg text-sm text-teal-50/70">
+            A real-time pulse of your stations, reservations, and completed
+            energy transfers.
+          </p>
         </div>
-        <div className="grid min-w-40 gap-1 text-right max-sm:text-left">
-          <span className="text-sm font-semibold text-emerald-100">Total Bookings</span>
-          <strong className="text-4xl leading-none">{reservations.length}</strong>
+        <div className="relative grid min-w-40 gap-1 text-right max-sm:text-left">
+          <span className="text-sm font-semibold text-teal-50/70">
+            Total bookings
+          </span>
+          <strong className="text-5xl leading-none text-[#f2b84b]">
+            {reservations.length}
+          </strong>
         </div>
       </section>
       <section className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 xl:grid-cols-4">
-        <Metric icon={<BatteryCharging />} label="Approved Future Reservations" value={approved} tone="green" />
-        <Metric icon={<Activity />} label="Pending Reservations" value={pending} tone="amber" />
-        <Metric icon={<MapPin />} label="Active Grid Nodes" value={nodes.filter((x) => x.isActive).length} tone="blue" />
-        <Metric icon={<CheckCircle2 />} label="Completed Transfers" value={completed} tone="violet" />
+        <Metric
+          icon={<BatteryCharging />}
+          label="Approved Future Reservations"
+          value={approved}
+          tone="green"
+        />
+        <Metric
+          icon={<Activity />}
+          label="Pending Reservations"
+          value={pending}
+          tone="amber"
+        />
+        <Metric
+          icon={<MapPin />}
+          label="Active Grid Nodes"
+          value={nodes.filter((x) => x.isActive).length}
+          tone="blue"
+        />
+        <Metric
+          icon={<CheckCircle2 />}
+          label="Completed Transfers"
+          value={completed}
+          tone="violet"
+        />
       </section>
-      <section className="grid gap-4 rounded-lg border border-slate-200 bg-white p-5">
+      <section className="surface grid gap-4 rounded-2xl p-5 md:p-6">
         <div className="flex items-center gap-3">
-          <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-emerald-50 text-emerald-700"><Zap size={19} /></span>
-          <div><h2 className="text-lg font-bold text-slate-900">Recent Reservations</h2><p className="mt-0.5 text-sm text-slate-500">Latest trading slots coming from the central API.</p></div>
+          <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-emerald-50 text-emerald-700">
+            <Zap size={19} />
+          </span>
+          <div>
+            <h2 className="text-lg font-bold text-slate-900">
+              Recent Reservations
+            </h2>
+            <p className="mt-0.5 text-sm text-slate-500">
+              Latest trading slots coming from the central API.
+            </p>
+          </div>
         </div>
-        <DataTable rows={reservations.slice(0, 6)} columns={[
-          ["prosumerNic", "Prosumer NIC"],
-          ["nodeId", "Node"],
-          ["slotStartUtc", "Slot Start", formatDate],
-          ["energyKwh", "Energy kWh"],
-          ["status", "Status", (v) => <Badge value={v} />],
-        ]} />
+        <DataTable
+          rows={reservations.slice(0, 6)}
+          columns={[
+            ["prosumerNic", "Prosumer NIC"],
+            ["nodeId", "Node"],
+            ["slotStartUtc", "Slot Start", formatDate],
+            ["energyKwh", "Energy kWh"],
+            ["status", "Status", (v) => <Badge value={v} />],
+          ]}
+        />
       </section>
     </div>
   );

@@ -1,16 +1,76 @@
 @import "tailwindcss";
 
 @layer base {
+  :root {
+    --ink: #102a2b;
+    --muted: #657778;
+    --paper: #f4f7f3;
+    --line: #dbe5df;
+    --teal: #087f73;
+    --teal-dark: #075c58;
+    --sun: #f2b84b;
+  }
+
   body {
-    @apply bg-slate-100 text-slate-900;
+    @apply text-slate-900;
+    background: var(--paper);
+    font-family: "Avenir Next", "Trebuchet MS", sans-serif;
+    background-image:
+      radial-gradient(
+        circle at 85% 0%,
+        rgba(242, 184, 75, 0.12),
+        transparent 24rem
+      ),
+      linear-gradient(135deg, rgba(8, 127, 115, 0.035), transparent 45%);
+  }
+
+  h1,
+  h2,
+  h3,
+  p {
+    letter-spacing: 0;
   }
 
   input,
   select {
-    @apply min-h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-emerald-700;
+    @apply min-h-11 w-full rounded-xl border bg-white px-3.5 text-sm text-slate-900 outline-none transition;
+    border-color: var(--line);
+    box-shadow: 0 1px 0 rgba(16, 42, 43, 0.02);
+  }
+
+  input:focus,
+  select:focus {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 4px rgba(8, 127, 115, 0.11);
   }
 
   button {
-    @apply cursor-pointer whitespace-nowrap disabled:cursor-wait disabled:opacity-70;
+    @apply cursor-pointer whitespace-nowrap transition disabled:cursor-wait disabled:opacity-70;
+  }
+
+  button:focus-visible {
+    outline: 3px solid rgba(242, 184, 75, 0.7);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: rgba(242, 184, 75, 0.55);
+    color: var(--ink);
+  }
+}
+
+@layer components {
+  .surface {
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 18px 40px rgba(30, 64, 55, 0.06);
+  }
+
+  .eyebrow {
+    color: var(--teal);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
   }
 }

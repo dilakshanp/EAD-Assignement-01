@@ -1,5 +1,14 @@
 import React from "react";
-import { BatteryCharging, LayoutDashboard, LogOut, MapPin, ShieldCheck, Sun, Users } from "lucide-react";
+import {
+  BatteryCharging,
+  ChevronRight,
+  LayoutDashboard,
+  LogOut,
+  MapPin,
+  ShieldCheck,
+  Sun,
+  Users,
+} from "lucide-react";
 import { Dashboard } from "../pages/Dashboard.jsx";
 import { Nodes } from "../pages/Nodes.jsx";
 import { Prosumers } from "../pages/Prosumers.jsx";
@@ -25,25 +34,65 @@ export function Shell({ user, tab, setTab, onLogout }) {
   ];
 
   return (
-    <main className="grid min-h-screen bg-slate-100 text-slate-900 lg:grid-cols-[272px_minmax(0,1fr)]">
-      <aside className="grid gap-6 border-r border-slate-800 bg-slate-950 p-4 text-white lg:sticky lg:top-0 lg:h-screen lg:grid-rows-[auto_1fr_auto]">
-        <div className="flex items-center gap-2.5 text-xl font-bold"><Sun className="text-amber-400" size={24} /><span>SolarDesk</span></div>
+    <main className="grid min-h-screen text-slate-900 lg:grid-cols-[286px_minmax(0,1fr)]">
+      <aside className="grid gap-8 bg-[#102a2b] p-5 text-white lg:sticky lg:top-0 lg:h-screen lg:grid-rows-[auto_1fr_auto]">
+        <div className="flex items-center gap-3">
+          <span className="grid size-10 place-items-center rounded-2xl bg-[#f2b84b] text-[#102a2b]">
+            <Sun size={22} />
+          </span>
+          <span>
+            <strong className="block text-lg tracking-tight">SolarDesk</strong>
+            <small className="text-xs text-teal-100/60">
+              Microgrid control room
+            </small>
+          </span>
+        </div>
         <nav className="grid content-start gap-1.5 sm:grid-cols-2 lg:grid-cols-1">
           {nav.map(([id, label, Icon]) => (
-            <button key={id} className={`relative inline-flex min-h-10 items-center justify-start gap-2 rounded-md px-3 text-sm font-semibold ${tab === id ? "bg-slate-800 text-white" : "text-slate-300 hover:bg-slate-900 hover:text-white"}`} onClick={() => setTab(id)}>
-              <Icon size={18} /> {label}
+            <button
+              key={id}
+              className={`group relative inline-flex min-h-12 items-center justify-start gap-3 rounded-xl px-3.5 text-sm font-semibold ${tab === id ? "bg-white text-[#102a2b] shadow-lg shadow-black/10" : "text-teal-50/65 hover:bg-white/10 hover:text-white"}`}
+              onClick={() => setTab(id)}
+            >
+              <Icon size={18} />{" "}
+              <span className="flex-1 text-left">{label}</span>
+              {tab === id && <ChevronRight size={16} />}
             </button>
           ))}
         </nav>
-        <button className="inline-flex min-h-10 items-center justify-start gap-2 rounded-md border border-slate-800 px-3 text-sm font-semibold text-slate-300 hover:bg-slate-900 hover:text-white" onClick={onLogout}><LogOut size={18} />Logout</button>
+        <div className="grid gap-3">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
+            <p className="eyebrow !text-[#f2b84b]">Signed in as</p>
+            <p className="mt-1 truncate text-sm font-semibold">
+              {user.username}
+            </p>
+            <p className="mt-0.5 text-xs text-teal-50/55">
+              {String(user.role)}
+            </p>
+          </div>
+          <button
+            className="inline-flex min-h-11 items-center justify-start gap-3 rounded-xl px-3.5 text-sm font-semibold text-teal-50/65 hover:bg-white/10 hover:text-white"
+            onClick={onLogout}
+          >
+            <LogOut size={18} />
+            Logout
+          </button>
+        </div>
       </aside>
       <section className="min-w-0">
-        <header className="sticky top-0 z-30 flex min-h-20 items-center justify-between gap-4 border-b border-slate-200 bg-white px-5 py-4 md:px-7">
+        <header className="sticky top-0 z-30 flex min-h-24 items-center justify-between gap-4 border-b border-[#dbe5df]/80 bg-[#f4f7f3]/90 px-5 py-5 backdrop-blur-md md:px-9">
           <div>
-            <p className="text-xs font-bold uppercase text-slate-500">{String(user.role)}</p>
-            <h1 className="text-2xl font-bold text-slate-950">{titles[tab]}</h1>
+            <p className="eyebrow">Operations / {String(user.role)}</p>
+            <h1 className="mt-1 text-3xl font-bold tracking-tight text-[#102a2b]">
+              {titles[tab]}
+            </h1>
           </div>
-          <span className="rounded-full border border-emerald-100 bg-emerald-50 px-3 py-2 text-sm font-bold text-emerald-800">{user.username}</span>
+          <div className="hidden items-center gap-3 sm:flex">
+            <span className="size-2 rounded-full bg-emerald-500 shadow-[0_0_0_5px_rgba(16,185,129,.12)]" />
+            <span className="text-sm font-semibold text-[#657778]">
+              Service online
+            </span>
+          </div>
         </header>
         {tab === "dashboard" && <Dashboard />}
         {tab === "users" && <UsersPanel />}
