@@ -36,10 +36,10 @@ export function Dashboard() {
   ).length;
 
   return (
-    <div className="grid gap-6 p-4 md:p-8">
-      <section className="relative flex min-h-44 items-end justify-between gap-5 overflow-hidden rounded-md bg-[#087f73] p-7 text-white max-sm:flex-col max-sm:items-start">
+    <div className="grid gap-6 p-4 md:p-8 md:pt-2">
+      <section className="relative flex min-h-44 items-end justify-between gap-5 overflow-hidden rounded-md bg-[#00483d] p-7 text-white max-sm:flex-col max-sm:items-start">
         <div>
-          <p className="eyebrow !text-[#f2b84b]">Live operations</p>
+          <p className="eyebrow !text-[#d9ff3f]">Live operations</p>
           <h2 className="relative mt-2 text-4xl font-bold tracking-tight">
             Microgrid trading overview
           </h2>
@@ -52,7 +52,7 @@ export function Dashboard() {
           <span className="text-sm font-semibold text-teal-50/70">
             Total bookings
           </span>
-          <strong className="text-5xl leading-none text-[#f2b84b]">
+          <strong className="text-5xl leading-none text-[#d9ff3f]">
             {reservations.length}
           </strong>
         </div>

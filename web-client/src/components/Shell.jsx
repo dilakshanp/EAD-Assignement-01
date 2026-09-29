@@ -35,13 +35,13 @@ export function Shell({ user, tab, setTab, onLogout }) {
 
   return (
     <main className="grid min-h-screen text-slate-900 lg:grid-cols-[286px_minmax(0,1fr)]">
-      <aside className="grid gap-8 bg-[#102a2b] p-5 text-white lg:sticky lg:top-0 lg:h-screen lg:grid-rows-[auto_1fr_auto]">
+      <aside className="grid gap-8 bg-[#00483d] p-5 text-white lg:sticky lg:top-0 lg:h-screen lg:grid-rows-[auto_1fr_auto]">
         <div className="flex items-center gap-3">
-          <span className="grid size-10 place-items-center rounded-md bg-[#f2b84b] text-[#102a2b]">
+          <span className="grid size-10 place-items-center rounded-md bg-[#d9ff3f] text-[#0b1020]">
             <Sun size={22} />
           </span>
           <span>
-            <strong className="block text-lg tracking-tight">SolarDesk</strong>
+            <strong className="block text-lg tracking-tight">Resolar</strong>
             <small className="text-xs text-teal-100/60">
               Microgrid control room
             </small>
@@ -51,7 +51,7 @@ export function Shell({ user, tab, setTab, onLogout }) {
           {nav.map(([id, label, Icon]) => (
             <button
               key={id}
-              className={`group relative inline-flex min-h-11 items-center justify-start gap-3 rounded-md px-3.5 text-sm font-semibold ${tab === id ? "bg-white text-[#102a2b]" : "text-teal-50/65 hover:bg-white/10 hover:text-white"}`}
+              className={`group relative inline-flex min-h-11 items-center justify-start gap-3 rounded-md px-3.5 text-sm font-semibold ${tab === id ? "bg-[#d9ff3f] text-[#0b1020]" : "text-white/70 hover:bg-white/10 hover:text-white"}`}
               onClick={() => setTab(id)}
             >
               <Icon size={18} />{" "}
@@ -62,7 +62,7 @@ export function Shell({ user, tab, setTab, onLogout }) {
         </nav>
         <div className="grid gap-3">
           <div className="rounded-md border border-white/10 bg-white/5 p-3">
-            <p className="eyebrow !text-[#f2b84b]">Signed in as</p>
+            <p className="eyebrow !text-[#d9ff3f]">Signed in as</p>
             <p className="mt-1 truncate text-sm font-semibold">
               {user.username}
             </p>
@@ -71,7 +71,7 @@ export function Shell({ user, tab, setTab, onLogout }) {
             </p>
           </div>
           <button
-            className="inline-flex min-h-11 items-center justify-start gap-3 rounded-xl px-3.5 text-sm font-semibold text-teal-50/65 hover:bg-white/10 hover:text-white"
+            className="inline-flex min-h-11 items-center justify-start gap-3 rounded-md px-3.5 text-sm font-semibold text-white/70 hover:bg-white/10 hover:text-white"
             onClick={onLogout}
           >
             <LogOut size={18} />
@@ -87,7 +87,7 @@ export function Shell({ user, tab, setTab, onLogout }) {
               {titles[tab]}
             </h1>
           </div>
-          <div className="hidden items-center gap-3 sm:flex">
+          <div className="hidden items-center gap-2 sm:flex">
             <span className="size-2 rounded-full bg-emerald-500" />
             <span className="text-sm font-semibold text-[#657778]">
               Service online

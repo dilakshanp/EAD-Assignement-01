@@ -8,7 +8,7 @@ export function Form({ children, onSubmit, submit }) {
       onSubmit={onSubmit}
     >
       {children}
-      <button className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-[#087f73] px-4 font-semibold text-white hover:bg-[#075c58]">
+      <button className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-[#00483d] px-4 font-semibold text-white hover:bg-[#00372f]">
         <Save size={17} />
         {submit}
       </button>

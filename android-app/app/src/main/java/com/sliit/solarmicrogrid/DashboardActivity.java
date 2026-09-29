@@ -394,10 +394,11 @@ public class DashboardActivity extends Activity {
                 .create();
 
         dialog.setOnShowListener(view -> {
+            styleDialog(dialog);
             Button save = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
             Button close = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-            save.setTextColor(Color.rgb(0, 83, 63));
-            close.setTextColor(Color.rgb(96, 117, 109));
+            save.setTextColor(getColor(R.color.brand_primary));
+            close.setTextColor(getColor(R.color.text_secondary));
             save.setOnClickListener(v -> {
                 int index = nodePicker.getSelectedItemPosition();
                 if (index < 0 || index >= pickerIds.size()) {
@@ -425,12 +426,18 @@ public class DashboardActivity extends Activity {
             Toast.makeText(this, "Booking ID is missing.", Toast.LENGTH_LONG).show();
             return;
         }
-        new AlertDialog.Builder(this)
+        AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("Cancel booking?")
                 .setMessage("This will cancel the reservation for " + nodeName + ". The 12-hour rule still applies.")
-                .setPositiveButton("Cancel booking", (dialog, which) -> cancelReservation(id))
+                .setPositiveButton("Cancel booking", (ignored, which) -> cancelReservation(id))
                 .setNegativeButton("Keep booking", null)
-                .show();
+            .create();
+        dialog.setOnShowListener(view -> {
+            styleDialog(dialog);
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getColor(R.color.error));
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getColor(R.color.brand_primary));
+        });
+        dialog.show();
     }
 
     private void updateReservation(String id, String selectedNodeId, String energyValue) {
@@ -690,16 +697,36 @@ public class DashboardActivity extends Activity {
             detailParams.setMargins(0, dp(14), 0, 0);
             content.addView(details, detailParams);
 
-            AlertDialog dialog = new AlertDialog.Builder(this)
+                AlertDialog dialog = new AlertDialog.Builder(this)
                     .setTitle("Transaction QR")
                     .setView(content)
                     .setPositiveButton("Close", null)
                     .create();
-            dialog.setOnShowListener(view -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.rgb(0, 83, 63)));
+            dialog.setOnShowListener(view -> styleDialog(dialog));
             dialog.show();
         } catch (Exception ex) {
             Toast.makeText(this, "QR could not be generated: " + ex.getMessage(), Toast.LENGTH_LONG).show();
         }
+    }
+
+    private void styleDialog(AlertDialog dialog) {
+        if (dialog.getWindow() != null) dialog.getWindow().setBackgroundDrawableResource(R.drawable.dialog_surface);
+        int titleId = getResources().getIdentifier("alertTitle", "id", "android");
+        TextView title = titleId == 0 ? null : dialog.findViewById(titleId);
+        if (title != null) {
+            title.setTextColor(getColor(R.color.text_primary));
+            title.setTypeface(appTypeface(true));
+            title.setTextSize(19);
+        }
+        TextView message = dialog.findViewById(android.R.id.message);
+        if (message != null) {
+            message.setTextColor(getColor(R.color.text_secondary));
+            message.setTextSize(14);
+        }
+        Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+        if (positive != null) positive.setTextColor(getColor(R.color.brand_primary));
+        Button negative = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+        if (negative != null) negative.setTextColor(getColor(R.color.text_secondary));
     }
 
     private MaterialButton materialActionButton(String label, int background, int textColor, int strokeColor) {
@@ -711,7 +738,7 @@ public class DashboardActivity extends Activity {
         button.setBackgroundTintList(ColorStateList.valueOf(background));
         button.setStrokeColor(ColorStateList.valueOf(strokeColor));
         button.setStrokeWidth(dp(1));
-        button.setCornerRadius(dp(12));
+        button.setCornerRadius(dp(6));
         button.setMinHeight(0);
         button.setMinWidth(0);
         button.setInsetTop(0);

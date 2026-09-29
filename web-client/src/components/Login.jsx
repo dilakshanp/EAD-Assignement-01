@@ -28,15 +28,15 @@ export function Login({ onLogin }) {
 
   return (
     <main className="grid min-h-screen bg-[#f4f7f3] p-4 text-slate-900 md:p-8 lg:grid-cols-[1.1fr_.9fr]">
-      <section className="relative hidden overflow-hidden rounded-md bg-[#102a2b] p-10 text-white lg:grid lg:content-between">
+      <section className="relative hidden overflow-hidden rounded-md bg-[#00483d] p-10 text-white lg:grid lg:content-between">
         <div className="relative flex items-center gap-3">
-          <span className="grid size-11 place-items-center rounded-md bg-[#f2b84b] text-[#102a2b]">
+          <span className="grid size-11 place-items-center rounded-md bg-[#d9ff3f] text-[#0b1020]">
             <Sun size={24} />
           </span>
-          <strong className="text-xl">SolarDesk</strong>
+          <strong className="text-xl">Resolar</strong>
         </div>
         <div className="relative max-w-xl">
-          <p className="eyebrow !text-[#f2b84b]">Microgrid operations</p>
+          <p className="eyebrow !text-[#d9ff3f]">Microgrid operations</p>
           <h2 className="mt-4 text-5xl font-bold leading-[1.02] tracking-tight">
             A clearer view of every watt in motion.
           </h2>
@@ -47,15 +47,15 @@ export function Login({ onLogin }) {
         </div>
         <div className="relative grid grid-cols-3 gap-3">
           <div className="rounded-md border border-white/10 bg-white/5 p-4">
-            <strong className="text-2xl text-[#f2b84b]">24/7</strong>
+            <strong className="text-2xl text-[#d9ff3f]">24/7</strong>
             <p className="mt-1 text-xs text-teal-50/55">network visibility</p>
           </div>
           <div className="rounded-md border border-white/10 bg-white/5 p-4">
-            <strong className="text-2xl text-[#f2b84b]">Live</strong>
+            <strong className="text-2xl text-[#d9ff3f]">Live</strong>
             <p className="mt-1 text-xs text-teal-50/55">booking status</p>
           </div>
           <div className="rounded-md border border-white/10 bg-white/5 p-4">
-            <strong className="text-2xl text-[#f2b84b]">1</strong>
+            <strong className="text-2xl text-[#d9ff3f]">1</strong>
             <p className="mt-1 text-xs text-teal-50/55">central service</p>
           </div>
         </div>
@@ -64,7 +64,7 @@ export function Login({ onLogin }) {
         <div className="grid w-full max-w-md gap-7">
           <div className="lg:hidden">
             <div className="flex items-center gap-3">
-              <span className="grid size-11 place-items-center rounded-md bg-[#f2b84b] text-[#102a2b]">
+              <span className="grid size-11 place-items-center rounded-md bg-[#d9ff3f] text-[#0b1020]">
                 <Sun size={24} />
               </span>
               <strong className="text-xl text-[#102a2b]">SolarDesk</strong>
@@ -103,7 +103,7 @@ export function Login({ onLogin }) {
             </p>
           )}
           <button
-            className="mt-2 inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-[#087f73] px-4 font-semibold text-white hover:bg-[#075c58] disabled:cursor-wait disabled:opacity-70"
+            className="mt-2 inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-[#00483d] px-4 font-semibold text-white hover:bg-[#00372f] disabled:cursor-wait disabled:opacity-70"
             disabled={loading}
           >
             <LogIn size={17} />

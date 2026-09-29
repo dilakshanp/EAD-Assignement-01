@@ -3,13 +3,13 @@
 
 @layer base {
   :root {
-    --ink: #102a2b;
-    --muted: #657778;
-    --paper: #f4f7f3;
-    --line: #dbe5df;
-    --teal: #087f73;
-    --teal-dark: #075c58;
-    --sun: #f2b84b;
+    --ink: #0b1020;
+    --muted: #66736e;
+    --paper: #f5f7f2;
+    --line: #d9e1d9;
+    --teal: #00483d;
+    --teal-dark: #00372f;
+    --sun: #d9ff3f;
   }
 
   body {
@@ -34,7 +34,7 @@
   input:focus,
   select:focus {
     border-color: var(--teal);
-    outline: 3px solid rgba(8, 127, 115, 0.14);
+    outline: 3px solid rgba(0, 72, 61, 0.15);
     outline-offset: 1px;
   }
 
@@ -48,7 +48,7 @@
   }
 
   ::selection {
-    background: rgba(242, 184, 75, 0.55);
+    background: rgba(217, 255, 63, 0.7);
     color: var(--ink);
   }
 }
@@ -69,4 +69,32 @@
 }
 
 @layer utilities {
+  .bg-emerald-700 {
+    background-color: #00483d !important;
+  }
+  .hover\:bg-emerald-800:hover {
+    background-color: #00372f !important;
+  }
+  .bg-emerald-50 {
+    background-color: #edf5df !important;
+  }
+  .text-emerald-700 {
+    color: #00483d !important;
+  }
+  .text-emerald-800 {
+    color: #00372f !important;
+  }
+  .border-emerald-100 {
+    border-color: #dce9c8 !important;
+  }
+  .bg-amber-50 {
+    background-color: #f4f8d9 !important;
+  }
+  .text-amber-700,
+  .text-amber-800 {
+    color: #536400 !important;
+  }
+  .border-amber-200 {
+    border-color: #dce99a !important;
+  }
 }

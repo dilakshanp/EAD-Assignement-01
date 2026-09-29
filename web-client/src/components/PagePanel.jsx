@@ -2,10 +2,10 @@ import React from "react";
 
 export function PagePanel({ title, subtitle, icon, message, children }) {
   return (
-    <div className="grid gap-5 p-4 md:p-8">
+    <div className="grid gap-5 p-4 md:p-8 md:pt-2">
       <section className="surface grid gap-6 rounded-md p-5 md:p-7">
         <div className="flex items-center gap-3">
-          <span className="grid size-11 shrink-0 place-items-center rounded-md bg-[#e4f3ed] text-[#087f73]">
+          <span className="grid size-11 shrink-0 place-items-center rounded-md bg-[#edf5df] text-[#00483d]">
             {icon}
           </span>
           <div>

@@ -3,10 +3,10 @@ import React from "react";
 export function Metric({ icon, label, value, tone }) {
   const color =
     {
-      green: "text-[#087f73] bg-[#e4f3ed]",
-      amber: "text-[#9a6500] bg-[#fff3d8]",
-      blue: "text-[#27718b] bg-[#e4f1f5]",
-      violet: "text-[#6d5b8d] bg-[#eee9f5]",
+      green: "text-[#00483d] bg-[#edf5df]",
+      amber: "text-[#536400] bg-[#f4f8d9]",
+      blue: "text-[#315f68] bg-[#e6f0ee]",
+      violet: "text-[#38414f] bg-[#edf0f0]",
     }[tone] || "text-slate-700 bg-slate-100";
   return (
     <article className="surface grid min-h-36 content-between rounded-md p-5">
