@@ -28,7 +28,7 @@ public class ProsumersController : ControllerBase
     public async Task<ActionResult<List<Prosumer>>> GetAll()
     {
         if (!AccessControl.HasRole(Request, UserRole.Backoffice, UserRole.GridOperator))
-            return Forbid();
+            return StatusCode(StatusCodes.Status403Forbidden, new ApiResult<bool>(false, "You are not allowed to view prosumer accounts.", false));
         return Ok(await _prosumers.GetAllAsync());
     }
 
@@ -37,7 +37,7 @@ public class ProsumersController : ControllerBase
     {
         if (!AccessControl.HasRole(Request, UserRole.Backoffice, UserRole.GridOperator)
             && AccessControl.ProsumerNic(Request) != nic)
-            return Forbid();
+            return StatusCode(StatusCodes.Status403Forbidden, new ApiResult<bool>(false, "You are not allowed to view prosumer accounts.", false));
         var prosumer = await _prosumers.GetAsync(nic);
         return prosumer is null ? NotFound() : Ok(prosumer);
     }

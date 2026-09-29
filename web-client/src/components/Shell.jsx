@@ -15,21 +15,24 @@ import { Prosumers } from "../pages/Prosumers.jsx";
 import { Reservations } from "../pages/Reservations.jsx";
 import { UsersPanel } from "../pages/UsersPanel.jsx";
 
-const titles = {
-  dashboard: "Operations Dashboard",
-  users: "User Administration",
-  prosumers: "Prosumer Accounts",
-  nodes: "Microgrid Nodes",
-  reservations: "Energy Reservations",
-};
-
 export function Shell({ user, tab, setTab, onLogout }) {
   const isBackoffice = user.role === "Backoffice" || user.role === 0;
+  const titles = {
+    dashboard: "Operations Dashboard",
+    users: "User Administration",
+    prosumers: "Prosumer Accounts",
+    nodes: isBackoffice ? "Microgrid Nodes" : "Slot Availability",
+    reservations: "Energy Reservations",
+  };
   const nav = [
     ["dashboard", "Dashboard", LayoutDashboard],
     ...(isBackoffice ? [["users", "Users", ShieldCheck]] : []),
     ...(isBackoffice ? [["prosumers", "Prosumers", Users]] : []),
-    ["nodes", "Grid Nodes", MapPin],
+    [
+      "nodes",
+      isBackoffice ? "Microgrid Nodes" : "Slot Availability",
+      isBackoffice ? MapPin : BatteryCharging,
+    ],
     ["reservations", "Reservations", BatteryCharging],
   ];
 
@@ -62,7 +65,7 @@ export function Shell({ user, tab, setTab, onLogout }) {
         </nav>
         <div className="grid gap-3">
           <div className="rounded-md border border-white/10 bg-white/5 p-3">
-            <p className="eyebrow !text-[#d9ff3f]">Signed in as</p>
+            <p className="mt-0.5 text-xs text-teal-50/55">Signed in as</p>
             <p className="mt-1 truncate text-sm font-semibold">
               {user.username}
             </p>

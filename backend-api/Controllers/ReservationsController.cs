@@ -20,7 +20,7 @@ public class ReservationsController : ControllerBase
     public async Task<ActionResult<List<EnergyReservation>>> GetAll()
     {
         if (!AccessControl.HasRole(Request, UserRole.Backoffice, UserRole.GridOperator))
-            return Forbid();
+            return StatusCode(StatusCodes.Status403Forbidden, new ApiResult<bool>(false, "You are not allowed to view reservations.", false));
         return Ok(await _reservations.GetAllAsync());
     }
 
@@ -29,14 +29,14 @@ public class ReservationsController : ControllerBase
     {
         if (!AccessControl.HasRole(Request, UserRole.Backoffice, UserRole.GridOperator)
             && AccessControl.ProsumerNic(Request) != nic)
-            return Forbid();
+            return StatusCode(StatusCodes.Status403Forbidden, new ApiResult<bool>(false, "You are not allowed to view reservations.", false));
         return Ok(await _reservations.GetByProsumerAsync(nic));
     }
 
     [HttpGet("nodes/{nodeId}/available-slots")]
     public async Task<ActionResult<List<AvailableSlot>>> AvailableSlots(string nodeId, DateTime? date)
     {
-        if (!AccessControl.HasRole(Request, UserRole.Backoffice, UserRole.GridOperator, UserRole.Prosumer)) return Forbid();
+        if (!AccessControl.HasRole(Request, UserRole.Backoffice, UserRole.GridOperator, UserRole.Prosumer)) return StatusCode(StatusCodes.Status403Forbidden, new ApiResult<bool>(false, "You are not allowed to view reservations.", false));
         return Ok(await _reservations.GetAvailableSlotsAsync(nodeId, date));
     }
 

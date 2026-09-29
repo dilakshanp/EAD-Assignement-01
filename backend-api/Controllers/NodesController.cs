@@ -20,7 +20,7 @@ public class NodesController : ControllerBase
     public async Task<ActionResult<List<MicrogridNode>>> GetAll()
     {
         if (!AccessControl.HasRole(Request, UserRole.Backoffice, UserRole.GridOperator, UserRole.Prosumer))
-            return Forbid();
+            return StatusCode(StatusCodes.Status403Forbidden, new ApiResult<bool>(false, "You are not allowed to view microgrid nodes.", false));
         return Ok(await _nodes.GetAllAsync());
     }
 
@@ -28,7 +28,7 @@ public class NodesController : ControllerBase
     public async Task<ActionResult<MicrogridNode>> Get(string id)
     {
         if (!AccessControl.HasRole(Request, UserRole.Backoffice, UserRole.GridOperator, UserRole.Prosumer))
-            return Forbid();
+            return StatusCode(StatusCodes.Status403Forbidden, new ApiResult<bool>(false, "You are not allowed to view microgrid nodes.", false));
         var node = await _nodes.GetAsync(id);
         return node is null ? NotFound() : Ok(node);
     }
@@ -70,6 +70,14 @@ public class NodesController : ControllerBase
         if (!AccessControl.HasRole(Request, UserRole.Backoffice))
             return Task.FromResult(new ApiResult<bool>(false, "Only Backoffice users can deactivate microgrid nodes.", false));
         return _nodes.DeactivateAsync(id);
+    }
+
+    [HttpPost("{id}/activate")]
+    public Task<ApiResult<bool>> Activate(string id)
+    {
+        if (!AccessControl.HasRole(Request, UserRole.Backoffice))
+            return Task.FromResult(new ApiResult<bool>(false, "Only Backoffice users can reactivate microgrid nodes.", false));
+        return _nodes.ActivateAsync(id);
     }
 }
 

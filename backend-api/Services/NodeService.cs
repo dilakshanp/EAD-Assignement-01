@@ -51,4 +51,12 @@ public class NodeService
         await _db.Nodes.UpdateOneAsync(x => x.Id == id, Builders<MicrogridNode>.Update.Set(x => x.IsActive, false));
         return new(true, "Node deactivated.", true);
     }
+
+    public async Task<ApiResult<bool>> ActivateAsync(string id)
+    {
+        var node = await GetAsync(id);
+        if (node is null) return new(false, "Microgrid node was not found.", false);
+        await _db.Nodes.UpdateOneAsync(x => x.Id == id, Builders<MicrogridNode>.Update.Set(x => x.IsActive, true));
+        return new(true, "Node reactivated.", true);
+    }
 }
