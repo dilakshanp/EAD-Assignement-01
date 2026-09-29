@@ -1,94 +1,200 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/Screen"
-    android:fillViewport="true">
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
 
     <LinearLayout
-        style="@style/Content"
-        android:gravity="center_vertical">
+        android:id="@+id/appHeader"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="@drawable/app_header_surface"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="20dp"
+        android:paddingEnd="16dp">
 
-        <TextView
-            style="@style/PageTitle"
-            android:text="Grid Operator\nConsole" />
+        <ImageView
+            android:id="@+id/appLogo"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/logo_mark" />
 
-        <TextView
-            style="@style/PageSubtitle"
-            android:text="Monitor bookings, update battery availability, and finalize QR verified energy transfers." />
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-        <LinearLayout style="@style/Panel">
             <TextView
-                style="@style/BodyText"
-                android:text="Battery slot availability"
-                android:textColor="#0F172A"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                style="@style/AppHeaderTitle"
+                android:text="Resolar" />
 
-            <EditText
-                android:id="@+id/operatorNodeId"
-                style="@style/Input"
-                android:hint="Node ID"
-                android:inputType="text" />
-
-            <EditText
-                android:id="@+id/operatorSlots"
-                style="@style/Input"
-                android:hint="Available battery slots"
-                android:inputType="number" />
-
-            <Button
-                android:id="@+id/updateSlotsButton"
-                style="@style/PrimaryButton"
-                android:text="Update Battery Slots" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Energy trading"
+                android:textColor="#CFE6DD"
+                android:textSize="11sp" />
         </LinearLayout>
 
-        <LinearLayout style="@style/Panel">
-            <TextView
-                style="@style/BodyText"
-                android:text="Booking monitor"
-                android:textColor="#0F172A"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+        <Button
+            android:id="@+id/themeToggleButton"
+            android:layout_width="1dp"
+            android:layout_height="1dp"
+            android:visibility="gone"
+            android:elevation="0dp"
+            android:translationZ="0dp"
+            android:stateListAnimator="@null" />
 
-            <Button
-                android:id="@+id/loadBookingsButton"
-                style="@style/SecondaryButton"
-                android:text="Load Power Trading Bookings" />
-
-            <TextView
-                android:id="@+id/bookings"
-                style="@style/BodyText"
-                android:layout_marginTop="12dp"
-                android:text="Bookings will appear here." />
-        </LinearLayout>
-
-        <LinearLayout style="@style/Panel">
-            <TextView
-                style="@style/BodyText"
-                android:text="QR transfer verification"
-                android:textColor="#0F172A"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/qrCode"
-                style="@style/Input"
-                android:hint="QR transaction code"
-                android:inputType="textCapCharacters" />
-
-            <Button
-                android:id="@+id/scanButton"
-                style="@style/SecondaryButton"
-                android:text="Scan QR With Camera" />
-
-            <Button
-                android:id="@+id/finalizeButton"
-                style="@style/PrimaryButton"
-                android:text="Verify and Finalize Transfer" />
-
-            <TextView
-                android:id="@+id/result"
-                style="@style/BodyText"
-                android:layout_marginTop="14dp"
-                android:text="Verification result will appear here." />
-        </LinearLayout>
+        <Button
+            android:id="@+id/profileButton"
+            android:layout_width="48dp"
+            android:layout_height="36dp"
+            android:background="@drawable/button_secondary"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:text="Me"
+            android:textAllCaps="false"
+            android:textColor="#00533F"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:elevation="0dp"
+            android:translationZ="0dp"
+            android:stateListAnimator="@null" />
     </LinearLayout>
-</ScrollView>
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false">
+
+        <LinearLayout style="@style/Content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="142dp"
+                android:background="@drawable/command_surface"
+                android:orientation="vertical"
+                android:padding="18dp">
+
+                <TextView
+                    style="@style/CommandTitle"
+                    android:text="Operator console" />
+
+                <TextView
+                    style="@style/CommandBody"
+                    android:text="Scan QR transfers, update slot availability, and monitor live bookings." />
+            </LinearLayout>
+
+            <LinearLayout style="@style/Panel">
+                <TextView
+                    style="@style/SectionTitle"
+                    android:text="Scan transaction" />
+
+                <TextView
+                    style="@style/SectionNote"
+                    android:text="Verify the prosumer QR against the central API before finalizing." />
+
+                <EditText
+                    android:id="@+id/qrCode"
+                    style="@style/Input"
+                    android:hint="QR transaction code"
+                    android:inputType="textCapCharacters" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/scanButton"
+                        style="@style/SecondaryButton"
+                        android:layout_width="0dp"
+                        android:layout_marginTop="0dp"
+                        android:layout_weight="1"
+                        android:text="Scan QR"
+            android:elevation="0dp"
+            android:translationZ="0dp"
+            android:stateListAnimator="@null" />
+
+                    <Button
+                        android:id="@+id/finalizeButton"
+                        style="@style/PrimaryButton"
+                        android:layout_width="0dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="0dp"
+                        android:layout_weight="1"
+                        android:text="Complete"
+            android:elevation="0dp"
+            android:translationZ="0dp"
+            android:stateListAnimator="@null" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/result"
+                    style="@style/BodyText"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/surface_muted"
+                    android:padding="14dp"
+                    android:text="Verification result will appear here." />
+            </LinearLayout>
+
+            <LinearLayout style="@style/Panel">
+                <TextView
+                    style="@style/SectionTitle"
+                    android:text="Battery slots" />
+
+                <TextView
+                    style="@style/SectionNote"
+                    android:text="Grid operators can update only available battery slot counts." />
+
+                <EditText
+                    android:id="@+id/operatorNodeId"
+                    style="@style/Input"
+                    android:hint="Node ID"
+                    android:inputType="text" />
+
+                <EditText
+                    android:id="@+id/operatorSlots"
+                    style="@style/Input"
+                    android:hint="Available battery slots"
+                    android:inputType="number" />
+
+                <Button
+                    android:id="@+id/updateSlotsButton"
+                    style="@style/PrimaryButton"
+                    android:text="Update slots"
+            android:elevation="0dp"
+            android:translationZ="0dp"
+            android:stateListAnimator="@null" />
+            </LinearLayout>
+
+            <LinearLayout style="@style/Panel">
+                <TextView
+                    style="@style/SectionTitle"
+                    android:text="Live bookings" />
+
+                <Button
+                    android:id="@+id/loadBookingsButton"
+                    style="@style/SecondaryButton"
+                    android:text="Refresh bookings"
+            android:elevation="0dp"
+            android:translationZ="0dp"
+            android:stateListAnimator="@null" />
+
+                <TextView
+                    android:id="@+id/bookings"
+                    style="@style/BodyText"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/surface_muted"
+                    android:padding="14dp"
+                    android:text="Bookings will appear here." />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

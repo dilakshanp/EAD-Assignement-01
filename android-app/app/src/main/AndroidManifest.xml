@@ -15,6 +15,7 @@
         <activity android:name=".MapActivity" />
         <activity android:name=".OperatorActivity" />
         <activity android:name=".DashboardActivity" />
+        <activity android:name=".AccountSettingsActivity" />
         <activity android:name=".RegisterActivity" />
         <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>

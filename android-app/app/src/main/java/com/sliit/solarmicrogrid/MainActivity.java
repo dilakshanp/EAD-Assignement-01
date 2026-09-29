@@ -18,8 +18,10 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        UiHelper.applyTheme(this);
         setContentView(R.layout.activity_main);
         api = new ApiClient(this);
+        UiHelper.setupHeader(this, null);
 
         EditText username = findViewById(R.id.username);
         EditText password = findViewById(R.id.password);
@@ -41,11 +43,11 @@ public class MainActivity extends Activity {
                         saveSession(username.getText().toString(), role, prosumerNic);
 
                         if (isOperatorRole(role)) {
-                            startActivity(new Intent(this, OperatorActivity.class));
+                            openLoggedInScreen(new Intent(this, OperatorActivity.class));
                         } else {
                             Intent intent = new Intent(this, DashboardActivity.class);
                             intent.putExtra("nic", prosumerNic.isEmpty() ? username.getText().toString() : prosumerNic);
-                            startActivity(intent);
+                            openLoggedInScreen(intent);
                         }
                     } else {
                         Toast.makeText(this, response.optString("message"), Toast.LENGTH_LONG).show();
@@ -60,11 +62,18 @@ public class MainActivity extends Activity {
         operator.setOnClickListener(v -> {
             String role = getSharedPreferences(SESSION, Context.MODE_PRIVATE).getString("role", "");
             if (isOperatorRole(role)) {
-                startActivity(new Intent(this, OperatorActivity.class));
+                openLoggedInScreen(new Intent(this, OperatorActivity.class));
             } else {
                 Toast.makeText(this, "Login as Backoffice or Grid Operator to use QR verification.", Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+
+    private void openLoggedInScreen(Intent intent) {
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 
     private void saveSession(String username, String role, String prosumerNic) {

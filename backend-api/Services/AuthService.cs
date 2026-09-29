@@ -12,7 +12,12 @@ namespace SmartSolar.Api.Services;
 public class AuthService
 {
     private readonly UserService _users;
-    public AuthService(UserService users) => _users = users;
+    private readonly ProsumerService _prosumers;
+    public AuthService(UserService users, ProsumerService prosumers)
+    {
+        _users = users;
+        _prosumers = prosumers;
+    }
 
     public string HashPassword(string password)
     {
@@ -22,7 +27,13 @@ public class AuthService
 
     public async Task<ApiResult<AppUser>> LoginAsync(string username, string password)
     {
-        var user = await _users.GetByUsernameAsync(username);
+        var login = username.Trim();
+        var user = await _users.GetByUsernameAsync(login);
+        if (user is null && login.Contains('@'))
+        {
+            var prosumer = (await _prosumers.GetAllAsync()).FirstOrDefault(x => string.Equals(x.Email, login, StringComparison.OrdinalIgnoreCase));
+            if (prosumer is not null) user = await _users.GetByUsernameAsync(prosumer.Nic);
+        }
         if (user is null || user.PasswordHash != HashPassword(password))
             return new(false, "Invalid username or password.", null);
         if (user.Status != AccountStatus.Active)

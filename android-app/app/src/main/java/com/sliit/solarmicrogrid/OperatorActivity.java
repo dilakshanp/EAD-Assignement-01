@@ -25,8 +25,10 @@ public class OperatorActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        UiHelper.applyTheme(this);
         setContentView(R.layout.activity_operator);
         api = new ApiClient(this);
+        UiHelper.setupHeader(this, null);
         qr = findViewById(R.id.qrCode);
         result = findViewById(R.id.result);
         bookings = findViewById(R.id.bookings);
@@ -78,7 +80,10 @@ public class OperatorActivity extends Activity {
                 JSONObject body = new JSONObject();
                 body.put("batteryStorageSlots", Integer.parseInt(slotValue));
                 JSONObject response = api.patch("/nodes/" + id + "/battery-slots", body);
-                runOnUiThread(() -> Toast.makeText(this, response.optString("message"), Toast.LENGTH_LONG).show());
+                runOnUiThread(() -> {
+                    Toast.makeText(this, response.optString("message"), Toast.LENGTH_LONG).show();
+                    result.setText("Slot availability updated\n" + response.optString("message", "Completed") + "\n\nNode: " + id + "\nAvailable slots: " + slotValue);
+                });
             } catch (Exception ex) {
                 runOnUiThread(() -> Toast.makeText(this, ex.getMessage(), Toast.LENGTH_LONG).show());
             }
@@ -119,11 +124,44 @@ public class OperatorActivity extends Activity {
                 JSONObject body = new JSONObject();
                 body.put("transactionCode", code);
                 JSONObject response = api.post("/reservations/complete-by-qr", body);
-                runOnUiThread(() -> result.setText(response.toString()));
+                runOnUiThread(() -> result.setText(formatTransferResult(response)));
                 loadBookings();
             } catch (Exception ex) {
                 runOnUiThread(() -> Toast.makeText(this, ex.getMessage(), Toast.LENGTH_LONG).show());
             }
         }).start();
     }
+    private String formatTransferResult(JSONObject response) {
+        JSONObject data = response.optJSONObject("data");
+        StringBuilder builder = new StringBuilder();
+        builder.append(response.optBoolean("success") ? "Transfer verified" : "Transfer not completed");
+        builder.append("\n").append(response.optString("message", "No message returned."));
+        if (data != null) {
+            builder.append("\n\nProsumer: ").append(data.optString("prosumerNic"));
+            builder.append("\nNode: ").append(data.optString("nodeId"));
+            builder.append("\nEnergy: ").append(data.optDouble("energyKwh")).append(" kWh");
+            builder.append("\nSlot: ").append(compactDate(data.optString("slotStartUtc")));
+            builder.append("\nStatus: ").append(statusLabel(data));
+        }
+        return builder.toString();
+    }
+
+    private String statusLabel(JSONObject item) {
+        String status = item.optString("status");
+        if (status != null && !status.isEmpty() && !status.matches("\\d+")) return status;
+        int value = item.optInt("status", -1);
+        switch (value) {
+            case 0: return "Pending";
+            case 1: return "Approved";
+            case 2: return "Cancelled";
+            case 3: return "Completed";
+            default: return status == null || status.isEmpty() ? "Unknown" : status;
+        }
+    }
+
+    private String compactDate(String value) {
+        if (value == null || value.isEmpty()) return "Not scheduled";
+        return value.replace("T", " ").replace("Z", " UTC");
+    }
+
 }

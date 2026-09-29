@@ -23,9 +23,12 @@ public class MapActivity extends Activity implements OnMapReadyCallback {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        UiHelper.applyTheme(this);
         setContentView(R.layout.activity_map);
         api = new ApiClient(this);
+        UiHelper.setupHeader(this, null);
         status = findViewById(R.id.mapStatus);
+        findViewById(R.id.closeMapButton).setOnClickListener(v -> finish());
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) mapFragment.getMapAsync(this);
     }

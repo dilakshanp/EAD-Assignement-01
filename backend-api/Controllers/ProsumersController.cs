@@ -73,6 +73,18 @@ public class ProsumersController : ControllerBase
         return new(true, "Prosumer profile registered. Use your NIC and password to login.", prosumer);
     }
 
+
+    [HttpPut("mobile/{nic}")]
+    public async Task<ApiResult<Prosumer>> MobileUpdate(string nic, Prosumer prosumer)
+    {
+        prosumer.Nic = nic;
+        var existing = await _prosumers.GetAsync(nic);
+        prosumer.Status = existing?.Status ?? AccountStatus.Active;
+        prosumer.CreatedAtUtc = existing?.CreatedAtUtc ?? DateTime.UtcNow;
+        await _prosumers.UpsertAsync(prosumer);
+        return new(true, "Prosumer profile updated.", prosumer);
+    }
+
     // Creates or updates a prosumer profile using NIC as the primary key.
     [HttpPut("{nic}")]
     public async Task<ApiResult<Prosumer>> Upsert(string nic, Prosumer prosumer)

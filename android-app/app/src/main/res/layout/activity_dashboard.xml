@@ -1,149 +1,557 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/Screen">
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/surface_background"
+    android:fitsSystemWindows="true">
 
-    <LinearLayout style="@style/Content">
-        <TextView
-            android:id="@+id/title"
-            style="@style/PageTitle"
-            android:text="Prosumer\nDashboard" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/summary"
-            style="@style/PageSubtitle"
-            android:text="Loading bookings..." />
+        <com.google.android.material.appbar.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/brand_primary"
+            app:elevation="0dp">
 
-        <Button
-            android:id="@+id/editProfileButton"
-            style="@style/SecondaryButton"
-            android:text="Edit Prosumer Profile" />
+            <LinearLayout
+                android:id="@+id/appHeader"
+                android:layout_width="match_parent"
+                android:layout_height="68dp"
+                android:background="@color/brand_primary"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="20dp"
+                android:paddingEnd="16dp">
 
-        <Button
-            android:id="@+id/mapButton"
-            style="@style/SecondaryButton"
-            android:text="View Nearby Grid Nodes Map" />
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    app:cardBackgroundColor="#20FFFFFF"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp">
 
-        <LinearLayout style="@style/Panel">
-            <TextView
-                style="@style/BodyText"
-                android:text="Energy reservation"
-                android:textColor="#0F172A"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                    <ImageView
+                        android:id="@+id/appLogo"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/logo_mark" />
+                </com.google.android.material.card.MaterialCardView>
 
-            <EditText
-                android:id="@+id/reservationId"
-                style="@style/Input"
-                android:hint="Reservation ID for update/cancel"
-                android:inputType="text" />
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
-            <EditText
-                android:id="@+id/nodeId"
-                style="@style/Input"
-                android:hint="Microgrid Node ID"
-                android:inputType="text" />
+                    <TextView
+                        style="@style/AppHeaderTitle"
+                        android:text="Resolar" />
 
-            <EditText
-                android:id="@+id/energy"
-                style="@style/Input"
-                android:hint="Energy amount kWh"
-                android:inputType="numberDecimal" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:alpha="0.85"
+                        android:text="Solar microgrid trading"
+                        android:textColor="#FFFFFF"
+                        android:textSize="11sp" />
+                </LinearLayout>
 
-            <Button
-                android:id="@+id/bookButton"
-                style="@style/PrimaryButton"
-                android:text="Create Booking Request" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/profileButton"
+                    android:layout_width="42dp"
+                    android:layout_height="40dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:minHeight="0dp"
+                    android:minWidth="0dp"
+                    android:text="Me"
+                    android:textAllCaps="false"
+                    android:textColor="@color/brand_primary"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/surface_card"
+                    app:cornerRadius="20dp"
+                    app:elevation="0dp" />
 
-            <Button
-                android:id="@+id/updateButton"
-                style="@style/SecondaryButton"
-                android:text="Modify Reservation" />
+                <Button
+                    android:id="@+id/themeToggleButton"
+                    android:layout_width="1dp"
+                    android:layout_height="1dp"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </com.google.android.material.appbar.AppBarLayout>
 
-            <Button
-                android:id="@+id/cancelButton"
-                style="@style/DangerButton"
-                android:text="Cancel Reservation" />
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            android:overScrollMode="never">
 
-            <Button
-                android:id="@+id/historyButton"
-                style="@style/SecondaryButton"
-                android:text="Refresh Booking History" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="16dp"
+                android:paddingTop="16dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="28dp">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="@color/surface_command"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/hairline"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <TextView
+                            android:id="@+id/title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/source_sans_pro"
+                            android:text="Your solar trading"
+                            android:textColor="@color/text_primary"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/summary"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:lineSpacingExtra="2dp"
+                            android:text="Loading your bookings..."
+                            android:textColor="@color/text_secondary"
+                            android:textSize="14sp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="18dp"
+                            android:orientation="horizontal">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/quickBookButton"
+                                android:layout_width="0dp"
+                                android:layout_height="48dp"
+                                android:layout_weight="1"
+                                android:text="Book slot"
+                                android:textAllCaps="false"
+                                android:textSize="14sp"
+                                app:backgroundTint="@color/brand_primary"
+                                app:cornerRadius="14dp"
+                                app:elevation="0dp" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/mapButton"
+                                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                                android:layout_width="0dp"
+                                android:layout_height="48dp"
+                                android:layout_marginStart="10dp"
+                                android:layout_weight="1"
+                                android:text="Nearby nodes"
+                                android:textAllCaps="false"
+                                android:textColor="@color/brand_primary"
+                                android:textSize="14sp"
+                                app:cornerRadius="14dp"
+                                app:elevation="0dp"
+                                app:strokeColor="@color/brand_primary" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <LinearLayout
+                    android:id="@+id/homeSection"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="0dp"
+                            android:layout_height="88dp"
+                            android:layout_weight="1"
+                            app:cardBackgroundColor="@color/surface_card"
+                            app:cardCornerRadius="16dp"
+                            app:cardElevation="0dp"
+                            app:strokeColor="@color/hairline"
+                            app:strokeWidth="1dp">
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center_vertical"
+                                android:orientation="vertical"
+                                android:paddingStart="14dp"
+                                android:paddingEnd="8dp">
+                                <TextView android:id="@+id/approvedCount" style="@style/LargeNumber" android:text="0" />
+                                <TextView style="@style/TinyLabel" android:text="Ready" />
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="0dp"
+                            android:layout_height="88dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_weight="1"
+                            app:cardBackgroundColor="@color/surface_card"
+                            app:cardCornerRadius="16dp"
+                            app:cardElevation="0dp"
+                            app:strokeColor="@color/hairline"
+                            app:strokeWidth="1dp">
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center_vertical"
+                                android:orientation="vertical"
+                                android:paddingStart="14dp"
+                                android:paddingEnd="8dp">
+                                <TextView android:id="@+id/pendingCount" style="@style/LargeNumber" android:text="0" />
+                                <TextView style="@style/TinyLabel" android:text="Pending" />
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="0dp"
+                            android:layout_height="88dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_weight="1"
+                            app:cardBackgroundColor="@color/surface_card"
+                            app:cardCornerRadius="16dp"
+                            app:cardElevation="0dp"
+                            app:strokeColor="@color/hairline"
+                            app:strokeWidth="1dp">
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center_vertical"
+                                android:orientation="vertical"
+                                android:paddingStart="14dp"
+                                android:paddingEnd="8dp">
+                                <TextView android:id="@+id/totalCount" style="@style/LargeNumber" android:text="0" />
+                                <TextView style="@style/TinyLabel" android:text="Total" />
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="22dp"
+                        android:layout_marginBottom="8dp"
+                        android:fontFamily="@font/source_sans_pro"
+                        android:text="Next transfer"
+                        android:textColor="@color/text_primary"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:cardBackgroundColor="@color/surface_tint_green"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp">
+                        <TextView
+                            android:id="@+id/nextBooking"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:lineSpacingExtra="3dp"
+                            android:padding="16dp"
+                            android:text="No upcoming booking yet. Book a slot when your solar battery is ready."
+                            android:textColor="@color/text_primary"
+                            android:textSize="14sp" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginBottom="8dp"
+                        android:fontFamily="@font/source_sans_pro"
+                        android:text="Latest update"
+                        android:textColor="@color/text_primary"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:cardBackgroundColor="@color/surface_card"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="0dp"
+                        app:strokeColor="@color/hairline"
+                        app:strokeWidth="1dp">
+                        <TextView
+                            android:id="@+id/recentBooking"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:lineSpacingExtra="3dp"
+                            android:padding="16dp"
+                            android:text="Your latest reservation update will appear here."
+                            android:textColor="@color/text_secondary"
+                            android:textSize="14sp" />
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/newSection"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    app:cardBackgroundColor="@color/surface_card"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/hairline"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="18dp">
+
+                        <TextView style="@style/SectionTitle" android:text="Book an energy slot" />
+                        <TextView style="@style/SectionNote" android:text="Choose where you want to transfer energy. The system schedules the slot inside the allowed booking window." />
+                        <TextView style="@style/TinyLabel" android:layout_marginTop="18dp" android:layout_marginBottom="6dp" android:text="Grid node" />
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="match_parent"
+                            android:layout_height="52dp"
+                            app:cardBackgroundColor="@color/surface_field"
+                            app:cardCornerRadius="14dp"
+                            app:cardElevation="0dp"
+                            app:strokeColor="@color/hairline"
+                            app:strokeWidth="1dp">
+                            <Spinner
+                                android:id="@+id/nodeSelector"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="@android:color/transparent"
+                                android:paddingStart="14dp"
+                                android:paddingEnd="14dp" />
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <EditText
+                            android:id="@+id/nodeId"
+                            style="@style/Input"
+                            android:hint="Microgrid node ID"
+                            android:inputType="text"
+                            android:visibility="gone" />
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:hint="Energy amount (kWh)"
+                            app:boxBackgroundMode="outline"
+                            app:boxCornerRadiusBottomEnd="14dp"
+                            app:boxCornerRadiusBottomStart="14dp"
+                            app:boxCornerRadiusTopEnd="14dp"
+                            app:boxCornerRadiusTopStart="14dp"
+                            app:boxStrokeColor="@color/brand_primary"
+                            app:hintTextColor="@color/text_secondary">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/energy"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="numberDecimal" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            app:cardBackgroundColor="@color/surface_tint_green"
+                            app:cardCornerRadius="14dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="0dp">
+                            <TextView
+                                android:id="@+id/bookingEstimate"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:lineSpacingExtra="3dp"
+                                android:padding="14dp"
+                                android:text="Your slot will be requested for tomorrow. You can update or cancel it later with at least 12 hours notice."
+                                android:textColor="@color/text_primary"
+                                android:textSize="13sp" />
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/bookButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="52dp"
+                            android:layout_marginTop="18dp"
+                            android:text="Request slot"
+                            android:textAllCaps="false"
+                            android:textSize="15sp"
+                            app:backgroundTint="@color/brand_primary"
+                            app:cornerRadius="14dp"
+                            app:elevation="0dp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/historySection"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    app:cardBackgroundColor="@color/surface_card"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/hairline"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="18dp">
+
+                        <TextView style="@style/SectionTitle" android:text="Your bookings" />
+                        <TextView style="@style/SectionNote" android:text="Use filters to find a booking. Edit or cancel directly from each card." />
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:hint="Search node or status"
+                            app:boxBackgroundMode="outline"
+                            app:boxCornerRadiusBottomEnd="14dp"
+                            app:boxCornerRadiusBottomStart="14dp"
+                            app:boxCornerRadiusTopEnd="14dp"
+                            app:boxCornerRadiusTopStart="14dp"
+                            app:boxStrokeColor="@color/brand_primary"
+                            app:hintTextColor="@color/text_secondary">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/searchBooking"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="text" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <HorizontalScrollView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:overScrollMode="never"
+                            android:scrollbars="none">
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+                                <com.google.android.material.chip.Chip android:id="@+id/searchButton" style="@style/Widget.MaterialComponents.Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:checked="true" android:text="Active" />
+                                <com.google.android.material.chip.Chip android:id="@+id/pendingButton" style="@style/Widget.MaterialComponents.Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="Pending" />
+                                <com.google.android.material.chip.Chip android:id="@+id/allButton" style="@style/Widget.MaterialComponents.Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="All" />
+                                <com.google.android.material.chip.Chip android:id="@+id/historyButton" style="@style/Widget.MaterialComponents.Chip.Filter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="Cancelled" />
+                            </LinearLayout>
+                        </HorizontalScrollView>
+
+                        <TextView android:id="@+id/history" android:layout_width="1dp" android:layout_height="1dp" android:text="" />
+                        <LinearLayout android:id="@+id/historyList" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:orientation="vertical" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/manageSection"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:visibility="gone"
+                    app:cardBackgroundColor="@color/surface_card"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/hairline"
+                    app:strokeWidth="1dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="18dp">
+                        <TextView style="@style/SectionTitle" android:text="Manage selected booking" />
+                        <TextView android:id="@+id/selectedBookingPreview" style="@style/BodyText" android:layout_marginTop="12dp" android:background="@drawable/soft_green_surface" android:padding="14dp" android:text="Select a booking card above, or choose one from the list." />
+                        <Spinner android:id="@+id/bookingSelector" android:layout_width="match_parent" android:layout_height="52dp" android:layout_marginTop="14dp" android:background="@drawable/material_field_surface" android:paddingStart="14dp" android:paddingEnd="14dp" />
+                        <Spinner android:id="@+id/manageNodeSelector" android:layout_width="match_parent" android:layout_height="52dp" android:layout_marginTop="10dp" android:background="@drawable/material_field_surface" android:paddingStart="14dp" android:paddingEnd="14dp" />
+                        <EditText android:id="@+id/manageNodeId" style="@style/Input" android:hint="New node ID" android:inputType="text" android:visibility="gone" />
+                        <EditText android:id="@+id/manageEnergy" style="@style/Input" android:hint="New energy kWh" android:inputType="numberDecimal" />
+                        <Button android:id="@+id/updateButton" style="@style/PrimaryButton" android:text="Save changes" />
+                        <Button android:id="@+id/cancelButton" style="@style/DangerButton" android:text="Cancel booking" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/summarySection"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    android:visibility="gone"
+                    app:cardBackgroundColor="@color/surface_card"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/hairline"
+                    app:strokeWidth="1dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="18dp">
+                        <TextView style="@style/SectionTitle" android:text="Result" />
+                        <TextView android:id="@+id/actionSummary" style="@style/BodyText" android:layout_marginTop="10dp" android:text="Your booking result will appear here." />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/toolsSection"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="18dp"
+                    app:cardBackgroundColor="@color/surface_card"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/hairline"
+                    app:strokeWidth="1dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_horizontal" android:orientation="vertical" android:padding="18dp">
+                        <TextView style="@style/SectionTitle" android:layout_gravity="start" android:text="Dispatch QR" />
+                        <TextView style="@style/SectionNote" android:text="Approved bookings generate a QR code for the operator to scan during transfer." />
+                        <com.google.android.material.card.MaterialCardView android:layout_width="200dp" android:layout_height="200dp" android:layout_marginTop="18dp" app:cardBackgroundColor="@color/surface_field" app:cardCornerRadius="18dp" app:cardElevation="0dp" app:strokeColor="@color/hairline" app:strokeWidth="1dp">
+                            <ImageView android:id="@+id/qrImage" android:layout_width="match_parent" android:layout_height="match_parent" android:padding="16dp" />
+                        </com.google.android.material.card.MaterialCardView>
+                        <TextView android:id="@+id/qrText" style="@style/BodyText" android:layout_marginTop="14dp" android:background="@drawable/surface_muted" android:gravity="center" android:padding="14dp" android:text="No approved QR is available yet." />
+                        <Button android:id="@+id/editProfileButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Account settings" android:visibility="gone" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottomNav"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/surface_card"
+            app:elevation="0dp"
+            app:itemIconTint="@color/nav_item_color"
+            app:itemTextColor="@color/nav_item_color"
+            app:labelVisibilityMode="labeled"
+            app:menu="@menu/bottom_nav_menu" />
+
+        <LinearLayout android:layout_width="0dp" android:layout_height="0dp" android:orientation="horizontal" android:visibility="gone">
+            <Button android:id="@+id/newTab" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Home" />
+            <Button android:id="@+id/manageTab" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Trade" />
+            <Button android:id="@+id/historyTab" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Bookings" android:visibility="gone" />
+            <Button android:id="@+id/toolsTab" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="QR" />
         </LinearLayout>
-
-        <LinearLayout style="@style/Panel">
-            <TextView
-                style="@style/BodyText"
-                android:text="Last booking action summary"
-                android:textColor="#0F172A"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/actionSummary"
-                style="@style/BodyText"
-                android:layout_marginTop="10dp"
-                android:text="Create, modify, or cancel a booking to see a summary here." />
-        </LinearLayout>
-
-        <LinearLayout style="@style/Panel">
-            <TextView
-                style="@style/BodyText"
-                android:text="Transaction QR"
-                android:textColor="#0F172A"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <com.sliit.solarmicrogrid.QrCodeView
-                android:id="@+id/qrCodeView"
-                android:layout_width="220dp"
-                android:layout_height="220dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="12dp" />
-
-            <TextView
-                android:id="@+id/qrText"
-                style="@style/BodyText"
-                android:layout_marginTop="10dp"
-                android:text="Approved reservation QR will appear after booking history loads." />
-        </LinearLayout>
-
-        <LinearLayout style="@style/Panel">
-            <TextView
-                style="@style/BodyText"
-                android:text="Bookings"
-                android:textColor="#0F172A"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/searchBooking"
-                style="@style/Input"
-                android:hint="Search ID, node, status, QR"
-                android:inputType="text" />
-
-            <Button
-                android:id="@+id/searchButton"
-                style="@style/SecondaryButton"
-                android:text="Search Bookings" />
-
-            <Button
-                android:id="@+id/pendingButton"
-                style="@style/SecondaryButton"
-                android:text="Show Pending Bookings" />
-
-            <Button
-                android:id="@+id/allButton"
-                style="@style/SecondaryButton"
-                android:text="Show All Bookings" />
-
-            <TextView
-                android:id="@+id/history"
-                style="@style/BodyText"
-                android:layout_marginTop="10dp"
-                android:text="No reservations loaded yet." />
-        </LinearLayout>
-
-        <TextView
-            style="@style/PageSubtitle"
-            android:text="Nearby grid nodes are loaded from the central API. Add a Google Maps SDK key for production map rendering." />
     </LinearLayout>
-</ScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

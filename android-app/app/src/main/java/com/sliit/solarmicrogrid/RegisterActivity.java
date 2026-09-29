@@ -18,6 +18,7 @@ public class RegisterActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        UiHelper.applyTheme(this);
         setContentView(R.layout.activity_register);
         api = new ApiClient(this);
         localDb = new LocalDb(this);
@@ -32,10 +33,7 @@ public class RegisterActivity extends Activity {
         EditText confirmPassword = findViewById(R.id.confirmPassword);
         Button save = findViewById(R.id.saveButton);
         Button deactivate = findViewById(R.id.deactivateButton);
-        String existingNic = getIntent().getStringExtra("nic");
-        if (existingNic != null && !existingNic.isEmpty()) {
-            nic.setText(existingNic);
-        }
+        deactivate.setVisibility(android.view.View.GONE);
 
         save.setOnClickListener(v -> {
             String nicValue = nic.getText().toString().trim();
@@ -61,8 +59,7 @@ public class RegisterActivity extends Activity {
             }
 
             save.setEnabled(false);
-            save.setText("Saving...");
-
+            save.setText("Creating...");
             new Thread(() -> {
                 try {
                     JSONObject body = new JSONObject();
@@ -79,47 +76,22 @@ public class RegisterActivity extends Activity {
                     runOnUiThread(() -> {
                         if (response.optBoolean("success")) {
                             saveLocal(nicValue, nameValue, emailValue, phoneValue);
-                            Toast.makeText(this, "Profile saved. Login with your NIC and password.", Toast.LENGTH_LONG).show();
+                            Toast.makeText(this, "Profile saved. Login with your NIC or email and password.", Toast.LENGTH_LONG).show();
                             Intent intent = new Intent(this, MainActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(intent);
                             finish();
                         } else {
                             save.setEnabled(true);
-                            save.setText("Save Profile");
+                            save.setText("Save account");
                             Toast.makeText(this, response.optString("message", "Profile could not be saved."), Toast.LENGTH_LONG).show();
                         }
                     });
                 } catch (Exception ex) {
                     runOnUiThread(() -> {
                         save.setEnabled(true);
-                        save.setText("Save Profile");
+                        save.setText("Save account");
                         Toast.makeText(this, ex.getMessage(), Toast.LENGTH_LONG).show();
-                    });
-                }
-            }).start();
-        });
-
-        deactivate.setOnClickListener(v -> {
-            String nicValue = nic.getText().toString().trim();
-            if (nicValue.isEmpty()) {
-                Toast.makeText(this, "Enter NIC before requesting deactivation.", Toast.LENGTH_LONG).show();
-                return;
-            }
-
-            deactivate.setEnabled(false);
-            deactivate.setText("Submitting...");
-
-            new Thread(() -> {
-                try {
-                    JSONObject response = api.post("/prosumers/" + nicValue + "/request-deactivation", new JSONObject());
-                    runOnUiThread(() -> Toast.makeText(this, response.optString("message"), Toast.LENGTH_LONG).show());
-                } catch (Exception ex) {
-                    runOnUiThread(() -> Toast.makeText(this, ex.getMessage(), Toast.LENGTH_LONG).show());
-                } finally {
-                    runOnUiThread(() -> {
-                        deactivate.setEnabled(true);
-                        deactivate.setText("Request Deactivation");
                     });
                 }
             }).start();

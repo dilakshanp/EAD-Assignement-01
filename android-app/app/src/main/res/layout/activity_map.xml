@@ -1,25 +1,106 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/Screen"
+    android:fitsSystemWindows="true"
     android:orientation="vertical">
 
-    <TextView
-        style="@style/PageTitle"
-        android:layout_margin="20dp"
-        android:layout_marginBottom="6dp"
-        android:text="Nearby\nGrid Nodes" />
+    <LinearLayout
+        android:id="@+id/appHeader"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="@drawable/app_header_surface"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="20dp"
+        android:paddingEnd="16dp">
 
-    <TextView
-        android:id="@+id/mapStatus"
-        style="@style/PageSubtitle"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:text="Loading grid nodes..." />
+        <ImageView
+            android:id="@+id/appLogo"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/logo_mark" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/AppHeaderTitle"
+                android:text="Resolar" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Energy trading"
+                android:textColor="#CFE6DD"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/themeToggleButton"
+            android:layout_width="1dp"
+            android:layout_height="1dp"
+            android:visibility="gone"
+            android:elevation="0dp"
+            android:translationZ="0dp"
+            android:stateListAnimator="@null" />
+
+        <Button
+            android:id="@+id/profileButton"
+            android:layout_width="48dp"
+            android:layout_height="36dp"
+            android:background="@drawable/button_secondary"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:text="Me"
+            android:textAllCaps="false"
+            android:textColor="#00533F"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:elevation="0dp"
+            android:translationZ="0dp"
+            android:stateListAnimator="@null" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="20dp"
+        android:paddingTop="16dp"
+        android:paddingEnd="20dp">
+
+        <TextView
+            style="@style/PageTitle"
+            android:text="Nearby nodes" />
+
+        <TextView
+            android:id="@+id/mapStatus"
+            style="@style/PageSubtitle"
+            android:text="Loading grid nodes..." />
+
+        <Button
+            android:id="@+id/closeMapButton"
+            style="@style/SecondaryButton"
+            android:layout_width="96dp"
+            android:text="Back"
+            android:elevation="0dp"
+            android:translationZ="0dp"
+            android:stateListAnimator="@null" />
+    </LinearLayout>
 
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.MapFragment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_margin="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="14dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="20dp"
         android:layout_weight="1" />
 </LinearLayout>
