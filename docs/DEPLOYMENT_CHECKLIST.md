@@ -14,16 +14,17 @@ dotnet publish -c Release -o ./publish
 4. Copy `backend-api/publish` to the IIS server, for example `C:\inetpub\smart_solar_api`.
 5. Create an IIS site or application pointing to that folder.
 6. Set the Application Pool to `No Managed Code`.
-7. Configure MongoDB secrets as IIS environment variables or in the server-only `web.config`:
+7. Configure production environment variables on IIS. Do not store real secrets in Git.
 
 ```xml
 <environmentVariables>
   <environmentVariable name="MONGODB_URI" value="mongodb+srv://..." />
   <environmentVariable name="MONGODB_DATABASE" value="smart_solar_microgrid_trading_system" />
+  <environmentVariable name="Auth__Secret" value="replace-with-a-long-production-secret" />
 </environmentVariables>
 ```
 
-8. Test these URLs from browser/Postman:
+8. Test the hosted API from browser/Postman:
 
 ```text
 http://SERVER_HOST/api/nodes
@@ -31,7 +32,19 @@ http://SERVER_HOST/api/prosumers
 http://SERVER_HOST/api/reservations
 ```
 
-9. Point both clients to the hosted service URL.
+Protected endpoints require login and the bearer token.
+
+9. Point both clients to the hosted service URL:
+
+- Web client API base: set `VITE_API_URL=http://SERVER_HOST/api` when building/running the web client.
+- Android API base: update `android-app/app/src/main/res/values/strings.xml`.
+
+## MongoDB Atlas Checklist
+
+- Use a dedicated database user with only the required permissions.
+- Restrict network access where possible.
+- Rotate any secret that was previously exposed in GitHub secret scanning.
+- Keep real credentials only in ignored local files or server environment variables.
 
 ## Google Maps API Key Restriction
 
@@ -58,3 +71,11 @@ MAPS_API_KEY=your_restricted_key_here
 ```
 
 Never commit unrestricted API keys.
+
+## Final Build Checks
+
+```bash
+cd backend-api && dotnet build
+cd ../web-client && npm run build
+cd ../android-app && ./gradlew assembleDebug
+```

@@ -12,3 +12,5 @@ web-client/dist/
 local.properties
 appsettings.Development.json
 *.env
+.DS_Store
+smart_solar_microgrid_trading_system_ITNumber/

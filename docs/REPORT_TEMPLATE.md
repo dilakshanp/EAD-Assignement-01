@@ -12,10 +12,10 @@ The solution follows client-server architecture with a FAT service pattern. Busi
 
 ```mermaid
 flowchart LR
-    Web[React Web Client] --> API[C# Web API on IIS]
+    Web[React Web Client] --> API[C# Web API / IIS Hosted Service]
     Android[Native Android Java App] --> API
     Android --> SQLite[(SQLite Local DB)]
-    API --> Mongo[(MongoDB NoSQL Database)]
+    API --> Mongo[(MongoDB Atlas)]
 ```
 
 ## 4. Use Case Diagram
@@ -28,18 +28,24 @@ flowchart TB
     ManageUsers((Manage Users))
     ManageProsumers((Manage Prosumers))
     ManageNodes((Manage Microgrid Nodes))
-    ManageReservations((Manage Reservations))
+    ManageSlots((Update Battery Slots))
+    ManageReservations((Approve / Cancel Reservations))
     Register((Register / Edit Profile))
-    BookSlot((Reserve Energy Slot))
+    BookSlot((Reserve / Modify / Cancel Slot))
+    ViewBookings((View and Search Bookings))
+    ViewMap((View Nearby Nodes on Map))
     ScanQR((Scan QR and Finalize Transfer))
     Backoffice --> ManageUsers
     Backoffice --> ManageProsumers
     Backoffice --> ManageNodes
     Backoffice --> ManageReservations
+    Operator --> ManageSlots
     Operator --> ManageReservations
     Operator --> ScanQR
     Prosumer --> Register
     Prosumer --> BookSlot
+    Prosumer --> ViewBookings
+    Prosumer --> ViewMap
 ```
 
 ## 5. DFD
@@ -76,11 +82,26 @@ Fields: `id`, `prosumerNic`, `nodeId`, `slotStartUtc`, `slotEndUtc`, `energyKwh`
 - Updates and cancellations require at least 12 hours notice.
 - Nodes cannot be deactivated while active reservations exist.
 - Deactivated prosumers can only be reactivated by a Backoffice officer.
+- Grid Operators can update battery slot availability and finalize approved QR transfers.
 - QR finalization is verified against the central server.
 
 ## 8. Screenshots
 
-Add screenshots of every web and Android UI.
+Add unique screenshots for every important UI:
+
+- Web login and dashboard.
+- Web user management.
+- Web prosumer management.
+- Web microgrid node management and fixed slot schedules.
+- Web reservation management.
+- Android login and prosumer registration.
+- Android dashboard/trade screen.
+- Android booking create/update/cancel flow.
+- Android booking history/search.
+- Android QR display.
+- Android nearby nodes map.
+- Android operator QR verification screen.
+- Android account settings/deactivation request.
 
 ## 9. Source Code
 
@@ -88,7 +109,7 @@ Paste relevant source code as text. Do not use screenshots for code.
 
 ## 10. References
 
-List Microsoft ASP.NET Core docs, MongoDB driver docs, Android SQLite docs, React/Vite docs, Google Maps docs, and QR library references if added.
+List Microsoft ASP.NET Core docs, MongoDB driver docs, Android SQLite docs, React/Vite docs, Google Maps docs, and ZXing QR scanning references.
 
 ## 11. Git Repository
 
@@ -104,4 +125,4 @@ Describe how AI was used for planning, implementation, debugging, documentation,
 
 ## 14. Challenges
 
-Discuss integration, API connectivity, MongoDB schema design, Android networking, QR handling, and deployment challenges.
+Discuss integration, API connectivity, MongoDB schema design, Android networking, QR handling, Google Maps key restrictions, and IIS deployment challenges.
