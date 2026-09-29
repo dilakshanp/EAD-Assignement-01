@@ -37,7 +37,7 @@ export function Shell({ user, tab, setTab, onLogout }) {
     <main className="grid min-h-screen text-slate-900 lg:grid-cols-[286px_minmax(0,1fr)]">
       <aside className="grid gap-8 bg-[#102a2b] p-5 text-white lg:sticky lg:top-0 lg:h-screen lg:grid-rows-[auto_1fr_auto]">
         <div className="flex items-center gap-3">
-          <span className="grid size-10 place-items-center rounded-2xl bg-[#f2b84b] text-[#102a2b]">
+          <span className="grid size-10 place-items-center rounded-md bg-[#f2b84b] text-[#102a2b]">
             <Sun size={22} />
           </span>
           <span>
@@ -51,7 +51,7 @@ export function Shell({ user, tab, setTab, onLogout }) {
           {nav.map(([id, label, Icon]) => (
             <button
               key={id}
-              className={`group relative inline-flex min-h-12 items-center justify-start gap-3 rounded-xl px-3.5 text-sm font-semibold ${tab === id ? "bg-white text-[#102a2b] shadow-lg shadow-black/10" : "text-teal-50/65 hover:bg-white/10 hover:text-white"}`}
+              className={`group relative inline-flex min-h-11 items-center justify-start gap-3 rounded-md px-3.5 text-sm font-semibold ${tab === id ? "bg-white text-[#102a2b]" : "text-teal-50/65 hover:bg-white/10 hover:text-white"}`}
               onClick={() => setTab(id)}
             >
               <Icon size={18} />{" "}
@@ -61,7 +61,7 @@ export function Shell({ user, tab, setTab, onLogout }) {
           ))}
         </nav>
         <div className="grid gap-3">
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
+          <div className="rounded-md border border-white/10 bg-white/5 p-3">
             <p className="eyebrow !text-[#f2b84b]">Signed in as</p>
             <p className="mt-1 truncate text-sm font-semibold">
               {user.username}
@@ -88,7 +88,7 @@ export function Shell({ user, tab, setTab, onLogout }) {
             </h1>
           </div>
           <div className="hidden items-center gap-3 sm:flex">
-            <span className="size-2 rounded-full bg-emerald-500 shadow-[0_0_0_5px_rgba(16,185,129,.12)]" />
+            <span className="size-2 rounded-full bg-emerald-500" />
             <span className="text-sm font-semibold text-[#657778]">
               Service online
             </span>

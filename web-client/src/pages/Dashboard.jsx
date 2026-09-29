@@ -37,8 +37,7 @@ export function Dashboard() {
 
   return (
     <div className="grid gap-6 p-4 md:p-8">
-      <section className="relative flex min-h-48 items-end justify-between gap-5 overflow-hidden rounded-[1.75rem] bg-[#087f73] p-7 text-white shadow-xl shadow-[#087f73]/15 max-sm:flex-col max-sm:items-start">
-        <div className="absolute -right-16 -top-32 size-96 rounded-full border-[55px] border-white/10" />
+      <section className="relative flex min-h-44 items-end justify-between gap-5 overflow-hidden rounded-md bg-[#087f73] p-7 text-white max-sm:flex-col max-sm:items-start">
         <div>
           <p className="eyebrow !text-[#f2b84b]">Live operations</p>
           <h2 className="relative mt-2 text-4xl font-bold tracking-tight">
@@ -84,7 +83,7 @@ export function Dashboard() {
           tone="violet"
         />
       </section>
-      <section className="surface grid gap-4 rounded-2xl p-5 md:p-6">
+      <section className="surface grid gap-4 rounded-md p-5 md:p-6">
         <div className="flex items-center gap-3">
           <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-emerald-50 text-emerald-700">
             <Zap size={19} />

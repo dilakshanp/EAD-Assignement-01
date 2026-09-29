@@ -2,7 +2,7 @@ import React from "react";
 
 export function DataTable({ rows, columns }) {
   return (
-    <div className="w-full overflow-auto rounded-2xl border border-[#dbe5df]">
+    <div className="w-full overflow-auto rounded-md border border-[#dbe5df]">
       <table className="w-full min-w-[860px] border-collapse bg-white">
         <thead>
           <tr>

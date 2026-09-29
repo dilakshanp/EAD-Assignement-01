@@ -28,10 +28,9 @@ export function Login({ onLogin }) {
 
   return (
     <main className="grid min-h-screen bg-[#f4f7f3] p-4 text-slate-900 md:p-8 lg:grid-cols-[1.1fr_.9fr]">
-      <section className="relative hidden overflow-hidden rounded-[2rem] bg-[#102a2b] p-10 text-white lg:grid lg:content-between">
-        <div className="absolute -right-24 -top-24 size-80 rounded-full border-[40px] border-[#f2b84b]/15" />
+      <section className="relative hidden overflow-hidden rounded-md bg-[#102a2b] p-10 text-white lg:grid lg:content-between">
         <div className="relative flex items-center gap-3">
-          <span className="grid size-11 place-items-center rounded-2xl bg-[#f2b84b] text-[#102a2b]">
+          <span className="grid size-11 place-items-center rounded-md bg-[#f2b84b] text-[#102a2b]">
             <Sun size={24} />
           </span>
           <strong className="text-xl">SolarDesk</strong>
@@ -47,15 +46,15 @@ export function Login({ onLogin }) {
           </p>
         </div>
         <div className="relative grid grid-cols-3 gap-3">
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+          <div className="rounded-md border border-white/10 bg-white/5 p-4">
             <strong className="text-2xl text-[#f2b84b]">24/7</strong>
             <p className="mt-1 text-xs text-teal-50/55">network visibility</p>
           </div>
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+          <div className="rounded-md border border-white/10 bg-white/5 p-4">
             <strong className="text-2xl text-[#f2b84b]">Live</strong>
             <p className="mt-1 text-xs text-teal-50/55">booking status</p>
           </div>
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+          <div className="rounded-md border border-white/10 bg-white/5 p-4">
             <strong className="text-2xl text-[#f2b84b]">1</strong>
             <p className="mt-1 text-xs text-teal-50/55">central service</p>
           </div>
@@ -65,7 +64,7 @@ export function Login({ onLogin }) {
         <div className="grid w-full max-w-md gap-7">
           <div className="lg:hidden">
             <div className="flex items-center gap-3">
-              <span className="grid size-11 place-items-center rounded-2xl bg-[#f2b84b] text-[#102a2b]">
+              <span className="grid size-11 place-items-center rounded-md bg-[#f2b84b] text-[#102a2b]">
                 <Sun size={24} />
               </span>
               <strong className="text-xl text-[#102a2b]">SolarDesk</strong>
@@ -83,7 +82,7 @@ export function Login({ onLogin }) {
         </div>
         <form
           onSubmit={submit}
-          className="grid gap-4 rounded-[1.75rem] border border-[#dbe5df] bg-white p-6 shadow-[0_20px_60px_rgba(30,64,55,.09)] md:p-8"
+          className="grid gap-4 rounded-md border border-[#dbe5df] bg-white p-6 md:p-8"
         >
           <Field label="Username">
             <input
@@ -104,7 +103,7 @@ export function Login({ onLogin }) {
             </p>
           )}
           <button
-            className="mt-2 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[#087f73] px-4 font-semibold text-white shadow-lg shadow-[#087f73]/20 hover:bg-[#075c58] disabled:cursor-wait disabled:opacity-70"
+            className="mt-2 inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-[#087f73] px-4 font-semibold text-white hover:bg-[#075c58] disabled:cursor-wait disabled:opacity-70"
             disabled={loading}
           >
             <LogIn size={17} />

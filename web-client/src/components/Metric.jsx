@@ -9,7 +9,7 @@ export function Metric({ icon, label, value, tone }) {
       violet: "text-[#6d5b8d] bg-[#eee9f5]",
     }[tone] || "text-slate-700 bg-slate-100";
   return (
-    <article className="surface grid min-h-36 content-between rounded-2xl p-5">
+    <article className="surface grid min-h-36 content-between rounded-md p-5">
       <div className="flex items-start justify-between">
         <span className={`grid size-10 place-items-center rounded-xl ${color}`}>
           {icon}
