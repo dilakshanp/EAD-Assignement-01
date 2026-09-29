@@ -40,7 +40,6 @@ public class MapActivity extends Activity implements OnMapReadyCallback, Locatio
         UiHelper.setupHeader(this, null);
         status = findViewById(R.id.mapStatus);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        findViewById(R.id.closeMapButton).setOnClickListener(v -> finish());
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) mapFragment.getMapAsync(this);
     }
@@ -48,6 +47,7 @@ public class MapActivity extends Activity implements OnMapReadyCallback, Locatio
     @Override
     public void onMapReady(GoogleMap map) {
         googleMap = map;
+        googleMap.getUiSettings().setMyLocationButtonEnabled(true);
         requestLocation();
         LatLng sriLanka = new LatLng(7.8731, 80.7718);
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sriLanka, 7f));
@@ -107,8 +107,11 @@ public class MapActivity extends Activity implements OnMapReadyCallback, Locatio
             return;
         }
         try {
+            googleMap.setMyLocationEnabled(true);
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 100, this);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 100, this);
             Location last = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            if (last == null) last = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             if (last != null) {
                 currentLocation = last;
                 if (loadedNodes != null) renderNodes(loadedNodes);

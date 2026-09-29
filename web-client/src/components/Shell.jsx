@@ -51,7 +51,7 @@ export function Shell({ user, tab, setTab, onLogout }) {
           {nav.map(([id, label, Icon]) => (
             <button
               key={id}
-              className={`group relative inline-flex min-h-11 items-center justify-start gap-3 rounded-md px-3.5 text-sm font-semibold ${tab === id ? "bg-[#d9ff3f] text-[#0b1020]" : "text-white/70 hover:bg-white/10 hover:text-white"}`}
+              className={`group relative inline-flex min-h-11 items-center justify-start gap-3 rounded-md px-3.5 text-sm font-semibold ${tab === id ? "bg-[#ffffff] text-[#0b1020]" : "text-white/70 hover:bg-white/10 hover:text-white"}`}
               onClick={() => setTab(id)}
             >
               <Icon size={18} />{" "}

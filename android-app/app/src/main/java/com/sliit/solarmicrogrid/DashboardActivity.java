@@ -11,6 +11,11 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
+import android.text.style.StyleSpan;
 import android.text.InputType;
 import android.view.View;
 import android.widget.AdapterView;
@@ -238,7 +243,7 @@ public class DashboardActivity extends Activity {
         selectNodeInSpinner(manageNodeSelector, selectedNodeId);
         double amount = item.optDouble("energyKwh", 0);
         manageEnergy.setText(amount == 0 ? "" : String.valueOf(amount));
-        selectedBookingPreview.setText(bookingSummary(item));
+        selectedBookingPreview.setText(styledBookingSummary(item));
     }
 
     private void selectNodeInSpinner(Spinner spinner, String id) {
@@ -346,13 +351,12 @@ public class DashboardActivity extends Activity {
         LinearLayout form = new LinearLayout(this);
         form.setOrientation(LinearLayout.VERTICAL);
         int spacing = dp(14);
-        form.setPadding(dp(2), spacing, dp(2), dp(2));
+        form.setPadding(dp(4), spacing, dp(4), dp(4));
 
         TextView summary = new TextView(this);
-        summary.setText(bookingSummary(item));
-        summary.setTextColor(Color.rgb(96, 117, 109));
-        summary.setTextSize(13);
+        summary.setText(styledBookingSummary(item));
         summary.setLineSpacing(dp(3), 1f);
+        summary.setPadding(0, 0, 0, dp(4));
         form.addView(summary);
 
         TextView nodeLabel = dialogLabel("Grid node");
@@ -379,7 +383,7 @@ public class DashboardActivity extends Activity {
         amount.setBackgroundResource(R.drawable.input_surface);
         amount.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
         amount.setSingleLine(true);
-        amount.setTextColor(Color.rgb(9, 44, 35));
+        amount.setTextColor(getColor(R.color.text_primary));
         amount.setTextSize(15);
         amount.setPadding(dp(14), 0, dp(14), 0);
         double currentAmount = item.optDouble("energyKwh", 0);
@@ -415,7 +419,7 @@ public class DashboardActivity extends Activity {
     private TextView dialogLabel(String value) {
         TextView label = new TextView(this);
         label.setText(value);
-        label.setTextColor(Color.rgb(9, 44, 35));
+        label.setTextColor(getColor(R.color.brand_primary));
         label.setTextSize(12);
         label.setTypeface(appTypeface(true));
         return label;
@@ -559,8 +563,10 @@ public class DashboardActivity extends Activity {
         ((TextView) findViewById(R.id.approvedCount)).setText(String.valueOf(approved));
         ((TextView) findViewById(R.id.pendingCount)).setText(String.valueOf(pending));
         ((TextView) findViewById(R.id.totalCount)).setText(String.valueOf(rows.length()));
-        ((TextView) findViewById(R.id.nextBooking)).setText(next == null ? "No upcoming booking yet." : bookingSummary(next));
-        ((TextView) findViewById(R.id.recentBooking)).setText(recent == null ? "Your latest reservation will appear here." : bookingSummary(recent));
+        TextView nextBooking = findViewById(R.id.nextBooking);
+        TextView recentBooking = findViewById(R.id.recentBooking);
+        nextBooking.setText(next == null ? "No upcoming booking yet.\nBook a slot when your solar battery is ready." : styledBookingSummary(next));
+        recentBooking.setText(recent == null ? "Your latest reservation will appear here." : styledBookingSummary(recent));
         ((TextView) findViewById(R.id.history)).setText("");
         renderBookingCards(rows);
         renderQr(qrValue);
@@ -582,7 +588,7 @@ public class DashboardActivity extends Activity {
     private View bookingCard(JSONObject item, int index) {
         MaterialCardView card = new MaterialCardView(this);
         card.setCardBackgroundColor(Color.WHITE);
-        card.setRadius(dp(18));
+        card.setRadius(dp(6));
         card.setCardElevation(0);
         card.setStrokeWidth(dp(1));
         card.setStrokeColor(Color.rgb(221, 232, 226));
@@ -771,6 +777,28 @@ public class DashboardActivity extends Activity {
                 + item.optDouble("energyKwh") + " kWh\n"
                 + compactDate(item.optString("slotStartUtc")) + "\n"
                 + qr;
+    }
+
+    private SpannableStringBuilder styledBookingSummary(JSONObject item) {
+        String status = statusLabel(item);
+        String node = displayNode(item.optString("nodeId"));
+        String energy = String.format(java.util.Locale.US, "%.1f kWh", item.optDouble("energyKwh"));
+        String slot = compactDate(item.optString("slotStartUtc"));
+        String qr = item.optString("transactionCode").isEmpty() ? "QR pending approval" : "QR ready for dispatch";
+        SpannableStringBuilder result = new SpannableStringBuilder();
+        appendStyled(result, status, getColor(R.color.brand_primary), 1.08f, true);
+        appendStyled(result, "\n" + node, getColor(R.color.text_primary), 1.0f, true);
+        appendStyled(result, "\n" + energy + "  ·  " + slot, getColor(R.color.text_secondary), .92f, false);
+        appendStyled(result, "\n" + qr, getColor(R.color.brand_primary), .92f, true);
+        return result;
+    }
+
+    private void appendStyled(SpannableStringBuilder result, String value, int color, float size, boolean bold) {
+        int start = result.length();
+        result.append(value);
+        result.setSpan(new ForegroundColorSpan(color), start, result.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        result.setSpan(new RelativeSizeSpan(size), start, result.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        if (bold) result.setSpan(new StyleSpan(Typeface.BOLD), start, result.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
 
     private String displayNode(String id) {
