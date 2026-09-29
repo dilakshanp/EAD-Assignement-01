@@ -37,7 +37,7 @@ export function Dashboard() {
 
   return (
     <div className="grid gap-6 p-4 md:p-8 md:pt-2">
-      <section className="relative flex min-h-44 items-end justify-between gap-5 overflow-hidden rounded-md bg-[#00483d] p-7 text-white max-sm:flex-col max-sm:items-start">
+      <section className="relative flex min-h-33 items-end justify-between gap-5 overflow-hidden rounded-md bg-[#00483d] p-7 text-white max-sm:flex-col max-sm:items-start">
         <div>
           <p className="eyebrow !text-[#d9ff3f]">Live operations</p>
           <h2 className="relative mt-2 text-4xl font-bold tracking-tight">

@@ -18,7 +18,9 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -244,8 +246,9 @@ public class DashboardActivity extends Activity {
             nodeLabels.add(name + " - " + place + "  |  " + slots + " slots");
         }
         if (nodeLabels.isEmpty()) nodeLabels.add("No active nodes available");
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, nodeLabels);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> adapter = styledDropdownAdapter(nodeLabels, null);
+        nodeSelector.setPopupBackgroundResource(R.drawable.dropdown_popup_surface);
+        manageNodeSelector.setPopupBackgroundResource(R.drawable.dropdown_popup_surface);
         nodeSelector.setAdapter(adapter);
         manageNodeSelector.setAdapter(adapter);
         if (!nodeIds.isEmpty()) {
@@ -300,9 +303,8 @@ public class DashboardActivity extends Activity {
                 }
                 if (slotLabels.isEmpty()) slotLabels.add("No slots for selected date");
                 runOnUiThread(() -> {
-                    ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, slotLabels);
-                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    slotSelector.setAdapter(adapter);
+                    slotSelector.setPopupBackgroundResource(R.drawable.dropdown_popup_surface);
+                    slotSelector.setAdapter(styledDropdownAdapter(slotLabels, slotAvailability));
                     bookingEstimate.setText(slotIds.isEmpty()
                             ? "No schedule slots found for this node on " + date.format(DateTimeFormatter.ofPattern("dd MMM yyyy")) + "."
                             : "Slots for " + date.format(DateTimeFormatter.ofPattern("dd MMM yyyy")) + ". Booked slots are shown for reference; choose an available slot to continue.");
@@ -451,9 +453,8 @@ public class DashboardActivity extends Activity {
         Spinner nodePicker = new Spinner(this);
         nodePicker.setBackgroundResource(R.drawable.material_field_surface);
         nodePicker.setPadding(dp(12), 0, dp(12), 0);
-        ArrayAdapter<String> nodeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, pickerLabels);
-        nodeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        nodePicker.setAdapter(nodeAdapter);
+        nodePicker.setPopupBackgroundResource(R.drawable.dropdown_popup_surface);
+        nodePicker.setAdapter(styledDropdownAdapter(pickerLabels, null));
         int selectedIndex = pickerIds.indexOf(currentNodeId);
         if (selectedIndex >= 0) nodePicker.setSelection(selectedIndex);
         form.addView(nodePicker, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(52)));
@@ -635,9 +636,8 @@ public class DashboardActivity extends Activity {
         }
 
         if (bookingLabels.isEmpty()) bookingLabels.add("No bookings available");
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, bookingLabels);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        bookingSelector.setAdapter(adapter);
+        bookingSelector.setPopupBackgroundResource(R.drawable.dropdown_popup_surface);
+        bookingSelector.setAdapter(styledDropdownAdapter(bookingLabels, null));
         populateManageFields(bookingSelector.getSelectedItemPosition());
 
         String mode = offline ? " | Offline cache" : "";
@@ -822,6 +822,8 @@ public class DashboardActivity extends Activity {
         MaterialButton button = new MaterialButton(this);
         button.setText(label);
         button.setTextSize(13);
+        button.setLetterSpacing(0f);
+        button.setAllCaps(false);
         button.setTypeface(appTypeface(true));
         button.setTextColor(textColor);
         button.setBackgroundTintList(ColorStateList.valueOf(background));
@@ -836,6 +838,43 @@ public class DashboardActivity extends Activity {
         button.setStateListAnimator(null);
         button.setTranslationZ(0);
         return button;
+    }
+
+    private ArrayAdapter<String> styledDropdownAdapter(ArrayList<String> labels, ArrayList<Boolean> enabledItems) {
+        return new ArrayAdapter<String>(this, 0, labels) {
+            @Override
+            public boolean isEnabled(int position) {
+                return enabledItems == null || (position < enabledItems.size() && Boolean.TRUE.equals(enabledItems.get(position)));
+            }
+
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                return dropdownText(getItem(position), false, isEnabled(position));
+            }
+
+            @Override
+            public View getDropDownView(int position, View convertView, ViewGroup parent) {
+                return dropdownText(getItem(position), true, isEnabled(position));
+            }
+        };
+    }
+
+    private TextView dropdownText(String value, boolean dropdown, boolean enabled) {
+        TextView view = new TextView(this);
+        view.setText(value == null ? "" : value);
+        view.setTypeface(appTypeface(true));
+        view.setTextSize(dropdown ? 14 : 13);
+        view.setLetterSpacing(0f);
+        view.setSingleLine(false);
+        view.setMaxLines(dropdown ? 2 : 1);
+        view.setEllipsize(TextUtils.TruncateAt.END);
+        view.setGravity(android.view.Gravity.CENTER_VERTICAL);
+        view.setMinHeight(dp(dropdown ? 48 : 42));
+        view.setPadding(dp(12), dropdown ? dp(8) : 0, dp(12), dropdown ? dp(8) : 0);
+        view.setTextColor(enabled ? getColor(R.color.text_primary) : getColor(R.color.text_secondary));
+        view.setAlpha(enabled ? 1f : 0.52f);
+        view.setBackgroundColor(dropdown ? Color.WHITE : Color.TRANSPARENT);
+        return view;
     }
 
     private TextView cardText(String text) {
