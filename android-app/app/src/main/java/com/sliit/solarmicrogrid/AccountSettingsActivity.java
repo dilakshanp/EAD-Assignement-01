@@ -1,9 +1,8 @@
 package com.sliit.solarmicrogrid;
 
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -85,7 +84,7 @@ public class AccountSettingsActivity extends Activity {
                     save.setEnabled(true);
                     save.setText("Update profile");
                     if (response.optBoolean("success")) {
-                        saveLocal(nicValue, nameValue, emailValue, phoneValue);
+                        saveLocal(nicValue, nameValue, emailValue, phoneValue, addressValue, Double.parseDouble(capacityValue));
                         Toast.makeText(this, "Profile updated.", Toast.LENGTH_LONG).show();
                         Intent intent = new Intent(this, DashboardActivity.class);
                         intent.putExtra("nic", nicValue);
@@ -132,6 +131,7 @@ public class AccountSettingsActivity extends Activity {
         new Thread(() -> {
             try {
                 JSONObject profile = new JSONObject(api.get("/prosumers/" + nicValue));
+                localDb.saveUser(nicValue, profile.optString("fullName"), profile.optString("email"), profile.optString("phone"), profile.optString("address"), profile.optDouble("solarCapacityKw"), profile.optString("status", "Active"));
                 runOnUiThread(() -> {
                     fullName.setText(profile.optString("fullName"));
                     phone.setText(profile.optString("phone"));
@@ -140,18 +140,33 @@ public class AccountSettingsActivity extends Activity {
                     capacity.setText(String.valueOf(profile.optDouble("solarCapacityKw")));
                 });
             } catch (Exception ex) {
-                runOnUiThread(() -> Toast.makeText(this, "Could not load profile: " + ex.getMessage(), Toast.LENGTH_LONG).show());
+                Cursor cursor = localDb.getUser(nicValue);
+                try {
+                    if (cursor.moveToFirst()) {
+                        String cachedName = cursor.getString(cursor.getColumnIndexOrThrow("full_name"));
+                        String cachedPhone = cursor.getString(cursor.getColumnIndexOrThrow("phone"));
+                        String cachedEmail = cursor.getString(cursor.getColumnIndexOrThrow("email"));
+                        String cachedAddress = cursor.getString(cursor.getColumnIndexOrThrow("address"));
+                        double cachedCapacity = cursor.getDouble(cursor.getColumnIndexOrThrow("solar_capacity_kw"));
+                        runOnUiThread(() -> {
+                            fullName.setText(cachedName);
+                            phone.setText(cachedPhone);
+                            email.setText(cachedEmail);
+                            address.setText(cachedAddress);
+                            capacity.setText(String.valueOf(cachedCapacity));
+                            Toast.makeText(this, "Showing the last locally saved profile.", Toast.LENGTH_LONG).show();
+                        });
+                    } else {
+                        runOnUiThread(() -> Toast.makeText(this, "Could not load profile: " + ex.getMessage(), Toast.LENGTH_LONG).show());
+                    }
+                } finally {
+                    cursor.close();
+                }
             }
         }).start();
     }
 
-    private void saveLocal(String nic, String name, String email, String phone) {
-        SQLiteDatabase db = localDb.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put("nic", nic);
-        values.put("full_name", name);
-        values.put("email", email);
-        values.put("phone", phone);
-        db.insertWithOnConflict("local_user", null, values, SQLiteDatabase.CONFLICT_REPLACE);
+    private void saveLocal(String nic, String name, String email, String phone, String address, double capacity) {
+        localDb.saveUser(nic, name, email, phone, address, capacity, "Active");
     }
 }

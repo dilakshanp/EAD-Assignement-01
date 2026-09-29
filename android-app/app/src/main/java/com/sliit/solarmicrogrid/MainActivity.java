@@ -37,10 +37,12 @@ public class MainActivity extends Activity {
                 JSONObject response = api.post("/auth/login", body);
                 runOnUiThread(() -> {
                     if (response.optBoolean("success")) {
-                        JSONObject user = response.optJSONObject("data");
+                        JSONObject session = response.optJSONObject("data");
+                        JSONObject user = session == null ? null : session.optJSONObject("user");
+                        String token = session == null ? "" : session.optString("token", "");
                         String role = user == null ? "" : user.optString("role", "");
                         String prosumerNic = user == null ? username.getText().toString() : user.optString("prosumerNic", username.getText().toString());
-                        saveSession(username.getText().toString(), role, prosumerNic);
+                        saveSession(username.getText().toString(), role, prosumerNic, token);
 
                         if (isOperatorRole(role)) {
                             openLoggedInScreen(new Intent(this, OperatorActivity.class));
@@ -76,11 +78,12 @@ public class MainActivity extends Activity {
         finish();
     }
 
-    private void saveSession(String username, String role, String prosumerNic) {
+    private void saveSession(String username, String role, String prosumerNic, String token) {
         SharedPreferences.Editor editor = getSharedPreferences(SESSION, Context.MODE_PRIVATE).edit();
         editor.putString("username", username);
         editor.putString("role", role);
         editor.putString("prosumerNic", prosumerNic);
+        editor.putString("token", token);
         editor.apply();
     }
 

@@ -17,10 +17,21 @@ public class ReservationsController : ControllerBase
     public ReservationsController(ReservationService reservations) => _reservations = reservations;
 
     [HttpGet]
-    public Task<List<EnergyReservation>> GetAll() => _reservations.GetAllAsync();
+    public async Task<ActionResult<List<EnergyReservation>>> GetAll()
+    {
+        if (!AccessControl.HasRole(Request, UserRole.Backoffice, UserRole.GridOperator))
+            return Forbid();
+        return Ok(await _reservations.GetAllAsync());
+    }
 
     [HttpGet("prosumer/{nic}")]
-    public Task<List<EnergyReservation>> GetByProsumer(string nic) => _reservations.GetByProsumerAsync(nic);
+    public async Task<ActionResult<List<EnergyReservation>>> GetByProsumer(string nic)
+    {
+        if (!AccessControl.HasRole(Request, UserRole.Backoffice, UserRole.GridOperator)
+            && AccessControl.ProsumerNic(Request) != nic)
+            return Forbid();
+        return Ok(await _reservations.GetByProsumerAsync(nic));
+    }
 
     [HttpPost]
     public Task<ApiResult<EnergyReservation>> Create(EnergyReservation reservation)
@@ -48,13 +59,36 @@ public class ReservationsController : ControllerBase
 
 
     [HttpPost("mobile")]
-    public Task<ApiResult<EnergyReservation>> MobileCreate(EnergyReservation reservation) => _reservations.CreateAsync(reservation);
+    public Task<ApiResult<EnergyReservation>> MobileCreate(EnergyReservation reservation)
+    {
+        if (!AccessControl.HasRole(Request, UserRole.Prosumer) || AccessControl.ProsumerNic(Request) != reservation.ProsumerNic)
+            return Task.FromResult(new ApiResult<EnergyReservation>(false, "Only the authenticated prosumer can create this reservation.", null));
+        return _reservations.CreateAsync(reservation, false);
+    }
 
     [HttpPut("mobile/{id}")]
-    public Task<ApiResult<EnergyReservation>> MobileUpdate(string id, EnergyReservation reservation) => _reservations.UpdateAsync(id, reservation);
+    public async Task<ApiResult<EnergyReservation>> MobileUpdate(string id, EnergyReservation reservation)
+    {
+        if (!AccessControl.HasRole(Request, UserRole.Prosumer))
+            return new(false, "Only prosumers can update reservations from mobile.", null);
+        return await _reservations.UpdateAsync(id, reservation, AccessControl.ProsumerNic(Request));
+    }
 
     [HttpPost("mobile/{id}/cancel")]
-    public Task<ApiResult<bool>> MobileCancel(string id) => _reservations.CancelAsync(id);
+    public async Task<ApiResult<bool>> MobileCancel(string id)
+    {
+        if (!AccessControl.HasRole(Request, UserRole.Prosumer))
+            return new(false, "Only prosumers can cancel reservations from mobile.", false);
+        return await _reservations.CancelAsync(id, AccessControl.ProsumerNic(Request));
+    }
+
+    [HttpPost("{id}/approve")]
+    public Task<ApiResult<EnergyReservation>> Approve(string id)
+    {
+        if (!AccessControl.HasRole(Request, UserRole.Backoffice, UserRole.GridOperator))
+            return Task.FromResult(new ApiResult<EnergyReservation>(false, "Only Backoffice or Grid Operator users can approve reservations.", null));
+        return _reservations.ApproveAsync(id);
+    }
 
     [HttpPost("complete-by-qr")]
     public Task<ApiResult<EnergyReservation>> CompleteByQr(QrCompleteRequest request)

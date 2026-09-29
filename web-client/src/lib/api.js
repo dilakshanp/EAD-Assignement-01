@@ -1,9 +1,13 @@
 export const API = import.meta.env.VITE_API_URL || "http://localhost:5088/api";
 
 export async function request(path, options = {}) {
-  const role = localStorage.getItem("smartSolarRole");
+  const token = localStorage.getItem("smartSolarToken");
   const response = await fetch(`${API}${path}`, {
-    headers: { "Content-Type": "application/json", ...(role ? { "X-User-Role": role } : {}), ...(options.headers || {}) },
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options.headers || {}),
+    },
     ...options,
   });
   if (!response.ok) throw new Error(`API request failed: ${response.status}`);

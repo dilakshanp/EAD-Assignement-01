@@ -75,7 +75,7 @@ public class RegisterActivity extends Activity {
 
                     runOnUiThread(() -> {
                         if (response.optBoolean("success")) {
-                            saveLocal(nicValue, nameValue, emailValue, phoneValue);
+                            saveLocal(nicValue, nameValue, emailValue, phoneValue, addressValue, Double.parseDouble(capacityValue));
                             Toast.makeText(this, "Profile saved. Login with your NIC or email and password.", Toast.LENGTH_LONG).show();
                             Intent intent = new Intent(this, MainActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -98,13 +98,7 @@ public class RegisterActivity extends Activity {
         });
     }
 
-    private void saveLocal(String nic, String name, String email, String phone) {
-        SQLiteDatabase db = localDb.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put("nic", nic);
-        values.put("full_name", name);
-        values.put("email", email);
-        values.put("phone", phone);
-        db.insertWithOnConflict("local_user", null, values, SQLiteDatabase.CONFLICT_REPLACE);
+    private void saveLocal(String nic, String name, String email, String phone, String address, double capacity) {
+        localDb.saveUser(nic, name, email, phone, address, capacity, "Active");
     }
 }

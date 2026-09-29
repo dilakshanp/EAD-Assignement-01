@@ -17,11 +17,18 @@ public class NodesController : ControllerBase
     public NodesController(NodeService nodes) => _nodes = nodes;
 
     [HttpGet]
-    public Task<List<MicrogridNode>> GetAll() => _nodes.GetAllAsync();
+    public async Task<ActionResult<List<MicrogridNode>>> GetAll()
+    {
+        if (!AccessControl.HasRole(Request, UserRole.Backoffice, UserRole.GridOperator, UserRole.Prosumer))
+            return Forbid();
+        return Ok(await _nodes.GetAllAsync());
+    }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<MicrogridNode>> Get(string id)
     {
+        if (!AccessControl.HasRole(Request, UserRole.Backoffice, UserRole.GridOperator, UserRole.Prosumer))
+            return Forbid();
         var node = await _nodes.GetAsync(id);
         return node is null ? NotFound() : Ok(node);
     }
@@ -31,6 +38,8 @@ public class NodesController : ControllerBase
     {
         if (!AccessControl.HasRole(Request, UserRole.Backoffice))
             return new(false, "Only Backoffice users can register microgrid nodes.", null);
+        var validation = _nodes.Validate(node);
+        if (!validation.Success) return new(false, validation.Message, null);
         await _nodes.CreateAsync(node);
         return new(true, "Microgrid node created.", node);
     }
@@ -40,6 +49,8 @@ public class NodesController : ControllerBase
     {
         if (!AccessControl.HasRole(Request, UserRole.Backoffice))
             return new(false, "Only Backoffice users can update node details and schedules.", null);
+        var validation = _nodes.Validate(node);
+        if (!validation.Success) return new(false, validation.Message, null);
         node.Id = id;
         await _nodes.UpdateAsync(id, node);
         return new(true, "Microgrid node updated.", node);

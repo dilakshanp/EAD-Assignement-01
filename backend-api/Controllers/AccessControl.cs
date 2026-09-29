@@ -11,7 +11,10 @@ public static class AccessControl
 {
     public static bool HasRole(HttpRequest request, params UserRole[] roles)
     {
-        var value = request.Headers["X-User-Role"].FirstOrDefault();
-        return Enum.TryParse<UserRole>(value, true, out var role) && roles.Contains(role);
+        return request.HttpContext.User.Identity?.IsAuthenticated == true
+            && roles.Any(role => request.HttpContext.User.IsInRole(role.ToString()));
     }
+
+    public static string? ProsumerNic(HttpRequest request) =>
+        request.HttpContext.User.FindFirst("prosumer_nic")?.Value;
 }

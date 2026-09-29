@@ -54,9 +54,9 @@ public class ApiClient {
 
     private void applyRoleHeader(HttpURLConnection conn) {
         SharedPreferences prefs = context.getSharedPreferences(SESSION, Context.MODE_PRIVATE);
-        String role = prefs.getString("role", "");
-        if (!role.isEmpty()) {
-            conn.setRequestProperty("X-User-Role", role);
+        String token = prefs.getString("token", "");
+        if (!token.isEmpty()) {
+            conn.setRequestProperty("Authorization", "Bearer " + token);
         }
     }
 

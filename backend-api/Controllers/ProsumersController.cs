@@ -25,11 +25,19 @@ public class ProsumersController : ControllerBase
     }
 
     [HttpGet]
-    public Task<List<Prosumer>> GetAll() => _prosumers.GetAllAsync();
+    public async Task<ActionResult<List<Prosumer>>> GetAll()
+    {
+        if (!AccessControl.HasRole(Request, UserRole.Backoffice, UserRole.GridOperator))
+            return Forbid();
+        return Ok(await _prosumers.GetAllAsync());
+    }
 
     [HttpGet("{nic}")]
     public async Task<ActionResult<Prosumer>> Get(string nic)
     {
+        if (!AccessControl.HasRole(Request, UserRole.Backoffice, UserRole.GridOperator)
+            && AccessControl.ProsumerNic(Request) != nic)
+            return Forbid();
         var prosumer = await _prosumers.GetAsync(nic);
         return prosumer is null ? NotFound() : Ok(prosumer);
     }
@@ -42,6 +50,10 @@ public class ProsumersController : ControllerBase
             return new(false, "NIC is required.", null);
         if (string.IsNullOrWhiteSpace(request.Password) || request.Password.Length < 6)
             return new(false, "Password must contain at least 6 characters.", null);
+        if (request.SolarCapacityKw < 0)
+            return new(false, "Solar capacity cannot be negative.", null);
+        if (await _prosumers.GetAsync(request.Nic) is not null || await _users.GetByUsernameAsync(request.Nic) is not null)
+            return new(false, "A prosumer with this NIC already exists.", null);
 
         var prosumer = new Prosumer
         {
@@ -77,6 +89,8 @@ public class ProsumersController : ControllerBase
     [HttpPut("mobile/{nic}")]
     public async Task<ApiResult<Prosumer>> MobileUpdate(string nic, Prosumer prosumer)
     {
+        if (!AccessControl.HasRole(Request, UserRole.Prosumer) || AccessControl.ProsumerNic(Request) != nic)
+            return new(false, "Only the authenticated prosumer can update this profile.", null);
         prosumer.Nic = nic;
         var existing = await _prosumers.GetAsync(nic);
         prosumer.Status = existing?.Status ?? AccountStatus.Active;
@@ -99,6 +113,8 @@ public class ProsumersController : ControllerBase
     [HttpPost("{nic}/request-deactivation")]
     public async Task<ApiResult<bool>> RequestDeactivation(string nic)
     {
+        if (!AccessControl.HasRole(Request, UserRole.Prosumer) || AccessControl.ProsumerNic(Request) != nic)
+            return new(false, "Only the authenticated prosumer can request deactivation.", false);
         await _prosumers.SetStatusAsync(nic, AccountStatus.PendingDeactivation);
         return new(true, "Deactivation request submitted.", true);
     }

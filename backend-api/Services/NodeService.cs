@@ -15,6 +15,19 @@ public class NodeService
 
     public Task<List<MicrogridNode>> GetAllAsync() => _db.Nodes.Find(_ => true).ToListAsync();
     public async Task<MicrogridNode?> GetAsync(string id) => await _db.Nodes.Find(x => x.Id == id).FirstOrDefaultAsync();
+
+    public ApiResult<bool> Validate(MicrogridNode node)
+    {
+        if (string.IsNullOrWhiteSpace(node.Name)) return new(false, "Node name is required.", false);
+        if (node.Latitude is < -90 or > 90 || node.Longitude is < -180 or > 180)
+            return new(false, "Node coordinates are invalid.", false);
+        if (node.CapacityKwh <= 0) return new(false, "Node capacity must be greater than zero.", false);
+        if (node.BatteryStorageSlots < 0) return new(false, "Battery slots cannot be negative.", false);
+        if (node.Schedules.Any(schedule => schedule.EndUtc <= schedule.StartUtc || schedule.AvailableSlots < 0))
+            return new(false, "Node schedules must have a valid range and non-negative availability.", false);
+        return new(true, "Node is valid.", true);
+    }
+
     public Task CreateAsync(MicrogridNode node) => _db.Nodes.InsertOneAsync(node);
     public Task UpdateAsync(string id, MicrogridNode node) => _db.Nodes.ReplaceOneAsync(x => x.Id == id, node);
 
@@ -29,6 +42,8 @@ public class NodeService
 
     public async Task<ApiResult<bool>> DeactivateAsync(string id)
     {
+        var node = await GetAsync(id);
+        if (node is null) return new(false, "Microgrid node was not found.", false);
         var activeReservations = await _db.Reservations.CountDocumentsAsync(x =>
             x.NodeId == id && (x.Status == ReservationStatus.Pending || x.Status == ReservationStatus.Approved));
         if (activeReservations > 0)

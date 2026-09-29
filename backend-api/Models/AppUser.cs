@@ -5,6 +5,7 @@
  */
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using System.Text.Json.Serialization;
 
 namespace SmartSolar.Api.Models;
 
@@ -14,6 +15,7 @@ public class AppUser
     [BsonRepresentation(BsonType.ObjectId)]
     public string? Id { get; set; }
     public string Username { get; set; } = "";
+    [JsonIgnore]
     public string PasswordHash { get; set; } = "";
     public UserRole Role { get; set; }
     public AccountStatus Status { get; set; } = AccountStatus.Active;

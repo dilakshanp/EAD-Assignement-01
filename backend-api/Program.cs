@@ -18,6 +18,7 @@ builder.Services.AddSingleton<ProsumerService>();
 builder.Services.AddSingleton<NodeService>();
 builder.Services.AddSingleton<ReservationService>();
 builder.Services.AddSingleton<AuthService>();
+builder.Services.AddSingleton<TokenService>();
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
@@ -26,12 +27,15 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("ClientApps", policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+    var allowedOrigins = builder.Configuration.GetSection("Cors:Origins").Get<string[]>()
+        ?? ["http://localhost:5173", "https://localhost:5173"];
+    options.AddPolicy("ClientApps", policy => policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod());
 });
 
 var app = builder.Build();
 
 app.UseCors("ClientApps");
+app.UseMiddleware<AuthenticationMiddleware>();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.MapControllers();

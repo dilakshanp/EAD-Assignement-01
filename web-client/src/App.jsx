@@ -8,10 +8,16 @@ function App() {
   const [user, setUser] = useState(null);
   const [tab, setTab] = useState("dashboard");
 
-  if (!user) return <Login onLogin={(nextUser) => {
-    localStorage.setItem("smartSolarRole", String(nextUser.role));
-    setUser(nextUser);
-  }} />;
+  if (!user)
+    return (
+      <Login
+        onLogin={(session) => {
+          localStorage.setItem("smartSolarToken", session.token);
+          localStorage.setItem("smartSolarRole", String(session.user.role));
+          setUser(session.user);
+        }}
+      />
+    );
 
   return (
     <Shell
@@ -19,6 +25,7 @@ function App() {
       tab={tab}
       setTab={setTab}
       onLogout={() => {
+        localStorage.removeItem("smartSolarToken");
         localStorage.removeItem("smartSolarRole");
         setUser(null);
         setTab("dashboard");
