@@ -112,10 +112,8 @@ IT22297372 Dilakshan P. developed the pure native Android application. This incl
 
 ## Git Repository
 
-Repository link: `ADD_GITHUB_REPOSITORY_LINK_HERE`
+Repository link: `https://github.com/dilakshanp/EAD-Assignement-01.git`
 
 ## Demo Video
 
-Video link: `ADD_YOUTUBE_OR_ONEDRIVE_VIDEO_LINK_HERE`
-
-The demo video should be no more than 5 minutes and should explain how the application works.
+Video link: ` https://mysliit-my.sharepoint.com/:f:/g/personal/it22297372_my_sliit_lk/IgBpitS4BTN8RoL4TLbQY62mAed_eu273Tzy-tAORVjQ0_A?e=9Uu69S`
