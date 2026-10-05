@@ -91,10 +91,31 @@ cd android-app
 - Capture unique screenshots of all web and Android screens for the report.
 - Use this GitHub repository name: `smart_solar_microgrid_trading_system`.
 
-## AI Disclosure
+## Team Contributions
 
-This project was developed with AI assistance under the updated Level 4 AI policy. The final submitter must review, test, understand, and be able to explain or modify every part during the viva.
+| Member                         | Main Responsibilities                                                                                                                                                                                              | Report Sections                                                   |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------- |
+| IT22102928 Denislas Coonghe J. | Backend authentication and user management: ASP.NET Core API setup, MongoDB connection, user roles, login, bearer authentication, prosumer registration API, profile updates, activation, and deactivation.        | Introduction, authentication design, user/prosumer management.    |
+| IT22115966 Bavithran S.        | Backend trading and node management: microgrid node APIs, GPS/capacity/battery schedules, node deactivation rules, reservation APIs, approval workflow, QR transaction completion.                                 | Business rules, reservation workflow, API endpoint documentation. |
+| IT22273444 Koshigawarman Y.    | Web application: React/Tailwind interface, Backoffice dashboard, user management, prosumer management, node management, reservation management, approval and QR finalization interface.                            | Web UI screenshots, web architecture, responsive design.          |
+| IT22297372 Dilakshan P.        | Native Android application: pure Android Java app, SQLite database, prosumer registration/profile UI, reservations, history/search, Google Maps, QR generation, operator login, QR scanning, battery-slot updates. | Android screenshots, SQLite design, Maps and QR functionality.    |
 
-## Demo Video and Repository
+### Individual Contributions
 
-Add the final demo video link and GitHub repository link in the report before submission.
+IT22102928 Denislas Coonghe J. developed the ASP.NET Core Web API authentication and user-management features. This included MongoDB integration, role-based access, bearer-token authentication, prosumer registration API support, profile management, and account status control.
+
+IT22115966 Bavithran S. developed the backend microgrid-node and energy-trading features. This included node GPS and capacity management, battery schedules, node deactivation rules, reservation validation, approval workflow, QR transaction generation, and energy-transfer completion.
+
+IT22273444 Koshigawarman Y. developed the React and Tailwind web application. This included the Backoffice and Grid Operator interfaces, user management, prosumer management, microgrid-node management, reservation management, approval controls, and QR transfer controls.
+
+IT22297372 Dilakshan P. developed the pure native Android application. This included SQLite local persistence, prosumer registration and profile editing screens, reservation creation and management, booking history and search, Google Maps node display, QR generation, Grid Operator mode, QR scanning, and battery-slot updates.
+
+## Git Repository
+
+Repository link: `ADD_GITHUB_REPOSITORY_LINK_HERE`
+
+## Demo Video
+
+Video link: `ADD_YOUTUBE_OR_ONEDRIVE_VIDEO_LINK_HERE`
+
+The demo video should be no more than 5 minutes and should explain how the application works.

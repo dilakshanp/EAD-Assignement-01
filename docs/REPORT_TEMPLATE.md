@@ -119,10 +119,6 @@ Add GitHub repository link.
 
 Clearly state each member's contribution.
 
-## 13. AI Collaboration Reflection
-
-Describe how AI was used for planning, implementation, debugging, documentation, and validation. Explain prompting strategies and how generated code was reviewed.
-
 ## 14. Challenges
 
 Discuss integration, API connectivity, MongoDB schema design, Android networking, QR handling, Google Maps key restrictions, and IIS deployment challenges.
