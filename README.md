@@ -84,6 +84,21 @@ cd android-app
 ./gradlew assembleDebug
 ```
 
+Install the APK on a connected Android phone:
+
+```bash
+adb devices
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+adb shell monkey -p com.sliit.solarmicrogrid 1
+```
+
+The phone and backend machine must be on the same Wi-Fi, and `api_base` must use the backend machine IP address.
+
+```bash
+ipconfig getifaddr en0
+<string name="api_base">http://YOUR_MAC_IP:5088/api</string>
+```
+
 ## Final Submission Notes
 
 - Backend C# source files include file header blocks and method-level comments.
