@@ -70,8 +70,17 @@ Use one of these values for `api_base`:
 - Physical phone on same Wi-Fi: `http://YOUR_MAC_IP:5088/api`
 - IIS deployment: `http://YOUR_SERVER_HOST/api`
 
-Create ignored local Android properties:
+Create ignored local Android properties from example file:
 
+macOS and Linux:
+```bash
+sed "s/YOUR_USERNAME/$USER/g" local.properties.example > local.properties
+```
+windows:
+```bash
+(Get-Content local.properties.example) -replace 'YOUR_USERNAME', $env:USERNAME | Set-Content local.properties
+```
+Replace Actual values:
 ```properties
 sdk.dir=/Users/YOUR_USER/Library/Android/sdk
 MAPS_API_KEY=your_restricted_google_maps_key_here
@@ -94,8 +103,18 @@ adb shell monkey -p com.sliit.solarmicrogrid 1
 
 The phone and backend machine must be on the same Wi-Fi, and `api_base` must use the backend machine IP address.
 
+Get the current IP of the computer:
+
+macOS and Linux:
 ```bash
 ipconfig getifaddr en0
+```
+windows:
+```bash
+ipconfig
+```
+
+```bash
 <string name="api_base">http://YOUR_MAC_IP:5088/api</string>
 ```
 

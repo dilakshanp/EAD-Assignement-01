@@ -33,5 +33,9 @@ public static class EnvLoader
         var database = Environment.GetEnvironmentVariable("MONGODB_DATABASE");
         if (!string.IsNullOrWhiteSpace(database))
             Environment.SetEnvironmentVariable("MongoDb__DatabaseName", database);
+
+        var authSecret = Environment.GetEnvironmentVariable("AUTH_SECRET");
+        if (!string.IsNullOrWhiteSpace(authSecret))
+            Environment.SetEnvironmentVariable("Auth__Secret", authSecret);
     }
 }

@@ -1,0 +1,9 @@
+# INSTRUCTIONS: 
+# 1. Copy this file and rename the copy to local.properties
+# 2. Replace the placeholder values below with your actual local configuration
+
+# Your local Android SDK path (Windows example provided)
+sdk.dir=C\:\\Users\\YOUR_USERNAME\\AppData\\Local\\Android\\Sdk
+
+# Google Maps API Key
+MAPS_API_KEY=your_google_maps_api_key_here

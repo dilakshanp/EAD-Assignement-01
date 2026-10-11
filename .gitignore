@@ -6,6 +6,7 @@ obj/
 build/
 web-client/node_modules/
 web-client/dist/
+backend-api/publish/
 *.apk
 *.aab
 *.zip
