@@ -38,6 +38,9 @@ app.UseSwagger();
 app.UseSwaggerUI();
 app.MapControllers();
 
-await SeedData.EnsureAsync(app.Services);
+if (app.Environment.IsDevelopment())
+{
+    await SeedData.EnsureAsync(app.Services);
+}
 
 app.Run();
