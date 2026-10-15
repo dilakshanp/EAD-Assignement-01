@@ -75,7 +75,11 @@ In Windows, set environment variables using PowerShell:
 [Environment]::SetEnvironmentVariable("AUTH_SECRET", "your-long-secret-key-at-least-32-characters", "Machine")
 ```
 
-Then restart IIS:
+`MONGODB_URI`, `MONGODB_DATABASE`, and `AUTH_SECRET` are required before the
+IIS application starts. The API seeds its demo data during startup, so an
+unreachable MongoDB instance can cause IIS to return **HTTP 500.30** before
+any controller or CORS middleware runs. After setting the variables, restart
+IIS:
 
 ```powershell
 iisreset
@@ -115,6 +119,57 @@ For demo, you can still run web locally with:
 npm run dev
 ```
 
+The `VITE_API_URL` value is the API URL. The current backend configuration
+allows requests from any origin, so the React client's URL does not need to be
+added to a `Cors:Origins` list.
+
+If you later want to restrict browser access, replace `AllowAnyOrigin()` in
+`backend-api/Program.cs` with an explicit allowlist and update
+`C:\inetpub\smart-solar-api\appsettings.json`:
+
+```json
+"Cors": {
+  "Origins": [
+    "http://localhost:5173",
+    "https://localhost:5173",
+    "http://WINDOWS-IP:5173"
+  ]
+}
+```
+
+Restart the IIS site after changing this file. If the deployed API is not
+using the expected settings, set the same values as IIS environment variables
+(`Cors__Origins__0`, `Cors__Origins__1`, and so on) and restart the application
+pool.
+
+To verify the preflight request from PowerShell, replace the host if needed:
+
+```powershell
+curl.exe -i -X OPTIONS "http://localhost:5088/api/auth/login" `
+  -H "Origin: http://localhost:5173" `
+  -H "Access-Control-Request-Method: POST" `
+  -H "Access-Control-Request-Headers: content-type"
+```
+
+The response must include:
+
+```text
+Access-Control-Allow-Origin: http://localhost:5173
+Access-Control-Allow-Methods: ...
+```
+
+If those headers are absent, confirm that the IIS site's physical path is
+`C:\inetpub\smart-solar-api`, that the copied folder contains the current
+`SmartSolar.Api.dll` and `appsettings.json`, and that the application pool is
+set to **No Managed Code**. A response containing **500.30** means the API
+process failed to start; check the MongoDB environment variables, the .NET 8
+Hosting Bundle, and the Windows Event Viewer. For temporary diagnostics,
+change `stdoutLogEnabled="false"` to `"true"` in the deployed `web.config`,
+create `C:\inetpub\smart-solar-api\logs`, reproduce the request, and inspect
+the generated `logs\stdout_*.log`. Disable stdout logging again after
+diagnosis. The browser's `unload` permissions-policy warning comes from an
+inspector extension and is unrelated to this CORS failure.
+
 **7. Update Android API URL**
 In Android `strings.xml`, change API base to:
 
@@ -150,4 +205,6 @@ all steps together
 
 ```PowerShell
 iisreset /stop; Copy-Item -Path "$env:USERPROFILE\Desktop\publish\*" -Destination "C:\inetpub\smart-solar-api" -Recurse -Force; iisreset /start
+
+iisreset /stop; Copy-Item -Path "C:\Users\HP\Downloads\Temp Dilakshan\EAD-Assignment\EAD-Assignement-01\backend-api\publish\*" -Destination "C:\inetpub\smart-solar-api" -Recurse -Force; iisreset /start
 ```

@@ -26,13 +26,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options =>
 {
-    var allowedOrigins = builder.Configuration.GetSection("Cors:Origins").Get<string[]>()
-        ?? ["http://localhost:5173", "https://localhost:5173"];
-    options.AddPolicy("ClientApps", policy => policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod());
+    options.AddPolicy("ClientApps", policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 });
 
 var app = builder.Build();
 
+app.UseRouting();
 app.UseCors("ClientApps");
 app.UseMiddleware<AuthenticationMiddleware>();
 app.UseSwagger();
