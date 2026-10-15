@@ -78,6 +78,11 @@
             style="@style/PageTitle"
             android:text="Nearby nodes" />
 
+        <Button
+            android:id="@+id/myLocationButton"
+            style="@style/SecondaryButton"
+            android:text="My location" />
+
         <TextView
             android:id="@+id/mapStatus"
             style="@style/PageSubtitle"

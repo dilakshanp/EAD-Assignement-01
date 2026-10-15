@@ -489,6 +489,10 @@
                         android:padding="18dp">
 
                         <TextView style="@style/SectionTitle" android:text="Your bookings" />
+                        <Button
+                            android:id="@+id/refreshBookingsButton"
+                            style="@style/SecondaryButton"
+                            android:text="Refresh bookings" />
                         <TextView style="@style/SectionNote" android:text="Use filters to find a booking. Edit or cancel directly from each card." />
 
                         <com.google.android.material.textfield.TextInputLayout

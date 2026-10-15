@@ -83,6 +83,7 @@ public class DashboardActivity extends Activity {
     private Typeface sourceSansBold;
     private LocalDate selectedSlotDate;
     private boolean syncingBottomNav = false;
+    private boolean loadingHistory = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,6 +102,7 @@ public class DashboardActivity extends Activity {
         manageNodeId = findViewById(R.id.manageNodeId);
         manageEnergy = findViewById(R.id.manageEnergy);
         searchBooking = findViewById(R.id.searchBooking);
+        findViewById(R.id.refreshBookingsButton).setOnClickListener(v -> loadHistory());
         nodeSelector = findViewById(R.id.nodeSelector);
         slotSelector = findViewById(R.id.slotSelector);
         selectDateButton = findViewById(R.id.selectDateButton);
@@ -569,18 +571,32 @@ public class DashboardActivity extends Activity {
     }
 
     private void loadHistory() {
+        if (loadingHistory) return;
+        loadingHistory = true;
+        android.widget.Button refresh = findViewById(R.id.refreshBookingsButton);
+        refresh.setEnabled(false);
+        refresh.setText("Refreshing...");
         new Thread(() -> {
             try {
                 JSONArray rows = new JSONArray(api.get("/reservations/prosumer/" + nic));
                 cacheReservations(rows);
-                currentRows = rows;
-                runOnUiThread(() -> renderRows(rows, false));
+                runOnUiThread(() -> {
+                    currentRows = rows;
+                    renderRows(rows, false);
+                    Toast.makeText(this, "Bookings updated.", Toast.LENGTH_SHORT).show();
+                });
             } catch (Exception ex) {
                 JSONArray cached = loadCachedReservations();
-                currentRows = cached;
                 runOnUiThread(() -> {
-                    Toast.makeText(this, "Showing cached bookings while offline.", Toast.LENGTH_LONG).show();
+                    currentRows = cached;
+                    Toast.makeText(this, "Could not refresh bookings. Showing saved data.", Toast.LENGTH_LONG).show();
                     renderRows(cached, true);
+                });
+            } finally {
+                runOnUiThread(() -> {
+                    loadingHistory = false;
+                    refresh.setEnabled(true);
+                    refresh.setText("Refresh bookings");
                 });
             }
         }).start();

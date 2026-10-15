@@ -15,6 +15,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 
@@ -29,7 +30,11 @@ public class MapActivity extends Activity implements OnMapReadyCallback, Locatio
     private TextView status;
     private LocationManager locationManager;
     private Location currentLocation;
-    private JSONArray loadedNodes;
+    private JSONArray loadedNodes = new JSONArray();
+    private boolean centerOnLocation = false;
+    private boolean nearbyNodesFocused = false;
+    private boolean showingMyLocation = false;
+    private String locationMessage = "Finding your location...";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +44,11 @@ public class MapActivity extends Activity implements OnMapReadyCallback, Locatio
         api = new ApiClient(this);
         UiHelper.setupHeader(this, null);
         status = findViewById(R.id.mapStatus);
+        findViewById(R.id.myLocationButton).setOnClickListener(v -> {
+            showingMyLocation = true;
+            centerOnLocation = true;
+            requestLocation();
+        });
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) mapFragment.getMapAsync(this);
@@ -48,9 +58,9 @@ public class MapActivity extends Activity implements OnMapReadyCallback, Locatio
     public void onMapReady(GoogleMap map) {
         googleMap = map;
         googleMap.getUiSettings().setMyLocationButtonEnabled(true);
-        requestLocation();
         LatLng sriLanka = new LatLng(7.8731, 80.7718);
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sriLanka, 7f));
+        requestLocation();
         loadNodes();
     }
 
@@ -58,8 +68,10 @@ public class MapActivity extends Activity implements OnMapReadyCallback, Locatio
         new Thread(() -> {
             try {
                 JSONArray nodes = new JSONArray(api.get("/nodes"));
-                loadedNodes = nodes;
-                runOnUiThread(() -> renderNodes(nodes));
+                runOnUiThread(() -> {
+                    loadedNodes = nodes;
+                    renderNodes(nodes);
+                });
             } catch (Exception ex) {
                 runOnUiThread(() -> Toast.makeText(this, ex.getMessage(), Toast.LENGTH_LONG).show());
             }
@@ -70,6 +82,7 @@ public class MapActivity extends Activity implements OnMapReadyCallback, Locatio
         if (googleMap == null) return;
         googleMap.clear();
         LatLng first = null;
+        LatLngBounds.Builder nodeBounds = new LatLngBounds.Builder();
         int active = 0;
         int nearby = 0;
         for (int i = 0; i < nodes.length(); i++) {
@@ -81,6 +94,7 @@ public class MapActivity extends Activity implements OnMapReadyCallback, Locatio
             double distance = currentLocation == null ? 0 : distanceKm(currentLocation.getLatitude(), currentLocation.getLongitude(), lat, lng);
             if (currentLocation != null && distance > NEARBY_RADIUS_KM) continue;
             LatLng position = new LatLng(lat, lng);
+            nodeBounds.include(position);
             if (first == null) first = position;
             active++;
             nearby++;
@@ -91,32 +105,74 @@ public class MapActivity extends Activity implements OnMapReadyCallback, Locatio
         }
         if (currentLocation != null) {
             LatLng here = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-            googleMap.addMarker(new MarkerOptions().position(here).title("Your location").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(here, 10f));
-            status.setText(nearby + " active grid nodes within " + (int) NEARBY_RADIUS_KM + " km.");
+            googleMap.addMarker(new MarkerOptions().position(here).title("Your location").zIndex(100f).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+            if (centerOnLocation) {
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(here, 13f));
+                centerOnLocation = false;
+            }
+            status.setText(nearby == 0 ? "No active grid nodes within " + (int) NEARBY_RADIUS_KM + " km."
+                    : nearby + " active grid nodes within " + (int) NEARBY_RADIUS_KM + " km.");
         } else {
-            if (first != null) googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(first, 11f));
-            status.setText(active + " active grid nodes loaded. Allow location to filter nearby nodes.");
+            status.setText(active + " active grid nodes loaded. " + locationMessage);
+        }
+        if (!showingMyLocation && !nearbyNodesFocused && first != null) {
+            if (nearby == 1) {
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(first, 13f));
+            } else {
+                android.view.View mapView = findViewById(R.id.map);
+                mapView.post(() -> {
+                    if (isFinishing() || isDestroyed() || showingMyLocation) return;
+                    int width = mapView.getWidth();
+                    int height = mapView.getHeight();
+                    int padding = (int) (32 * getResources().getDisplayMetrics().density);
+                    if (width > padding * 2 && height > padding * 2) {
+                        googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(nodeBounds.build(), width, height, padding));
+                    }
+                });
+            }
+            // Reframe once a location fix becomes available and filters the nodes.
+            nearbyNodesFocused = currentLocation != null;
         }
     }
 
     private void requestLocation() {
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (googleMap == null) return;
+        boolean fine = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        boolean coarse = checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        if (!fine && !coarse) {
+            locationMessage = "Allow location access to show your position.";
+            renderNodes(loadedNodes);
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, LOCATION_REQUEST);
             return;
         }
         try {
             googleMap.setMyLocationEnabled(true);
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5000, 100, this);
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 100, this);
-            Location last = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            if (last == null) last = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            if (last != null) {
-                currentLocation = last;
-                if (loadedNodes != null) renderNodes(loadedNodes);
+            locationManager.removeUpdates(this);
+            Location latest = null;
+            boolean enabled = false;
+            for (String provider : new String[]{LocationManager.NETWORK_PROVIDER, LocationManager.GPS_PROVIDER}) {
+                if (LocationManager.GPS_PROVIDER.equals(provider) && !fine) continue;
+                try {
+                    if (!locationManager.isProviderEnabled(provider)) continue;
+                    enabled = true;
+                    locationManager.requestLocationUpdates(provider, 5000, 10, this);
+                    Location last = locationManager.getLastKnownLocation(provider);
+                    // Ignore old fixes rather than presenting them as the current position.
+                    if (last != null && android.os.SystemClock.elapsedRealtimeNanos() - last.getElapsedRealtimeNanos()
+                            <= 120_000_000_000L && (latest == null || last.getTime() > latest.getTime())) {
+                        latest = last;
+                    }
+                } catch (IllegalArgumentException | SecurityException ignored) {
+                    // Another available provider can still supply a location.
+                }
             }
+            locationMessage = enabled ? "Finding your location..." : "Turn on phone location services, then tap My location.";
+            if (!enabled) currentLocation = null;
+            if (latest != null) currentLocation = latest;
+            renderNodes(loadedNodes);
         } catch (SecurityException ignored) {
+            locationMessage = "Allow location access in app settings, then tap My location.";
+            renderNodes(loadedNodes);
         }
     }
 
@@ -127,10 +183,30 @@ public class MapActivity extends Activity implements OnMapReadyCallback, Locatio
             for (int result : grantResults) {
                 if (result == PackageManager.PERMISSION_GRANTED) {
                     requestLocation();
-                    break;
+                    return;
                 }
             }
+            locationMessage = "Location permission denied. Enable it in app settings to show your position.";
+            renderNodes(loadedNodes);
         }
+    }
+
+    @Override protected void onResume() {
+        super.onResume();
+        if (googleMap != null) requestLocation();
+    }
+
+    @Override protected void onPause() {
+        if (locationManager != null) locationManager.removeUpdates(this);
+        super.onPause();
+    }
+
+    @Override public void onProviderEnabled(String provider) {
+        requestLocation();
+    }
+
+    @Override public void onProviderDisabled(String provider) {
+        requestLocation();
     }
 
     @Override public void onLocationChanged(Location location) {
